@@ -53,6 +53,7 @@
  * a la funcion close_conexion() para cerrar la conexion.
  * @see close_conexion
  * @warning El canal a la base queda abierto al finalizar la funcion.
+ *
  */
 sqlite3* open_conexion(char* db_name,sqlite3* db)
 {
@@ -71,11 +72,26 @@ sqlite3* open_conexion(char* db_name,sqlite3* db)
   return db;
 }
 
+/**
+ * Cierra la conexion de la base de datos. Por cada operacion la base debe
+ * abrirse y cerrarse sin excepcion.
+ * @see open_conexion
+ *
+ */
 void close_conexion(sqlite3 *db)
 {
   sqlite3_close(db);
 }
 
+
+/**
+ * La funcion debe recibir parametros muy especificos como son una estructura
+ * que en este caso se llama @param_dicc (generalmente un diccionario) y un
+ * string que es el query que hara la solicitud a la base de datos. Debe ser
+ * de tipo SELECT. Por ultimo la funcion @callback debe mantener parametros 
+ * predefinidos para el uso de esta funcion.
+ *
+ */
 int get_query(char* db_name,
 	      char* query,
 	      sqlite3* db,

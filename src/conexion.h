@@ -47,12 +47,49 @@
  */
 #include <sqlite3.h>
 
+/**
+ * Este es el apuntador a el objeto que mantiene en memeria la base de datos.
+ * Fundamental para poder acceder a ella y realizar peticiones.
+ */
 sqlite3 *db;
 
+/**
+ * @brief Funcion que abre la conexion a la base de datos.
+ *
+ * @param db_name -Es la cadena que define la ubicacion y nombre de la base
+ * de datos.
+ * @param db -Es el apuntador al objeto que tiene la base de datos a abrir.
+ * @return Un objeto apuntador a la direccion que debe realizar peticiones
+ * la base de datos.
+ * 
+ */
 sqlite3* open_conexion(char *db_name, sqlite3 *db);
 
+/**
+ * @brief Funcion que cierra la conexion con la base de datos.
+ *
+ * @db -Es el apuntador al objeto que tiene la base de datos a cerrar.
+ */
 void close_conexion(sqlite3 *db);
 
+/**
+ * @brief Funcion dedicada a realizar una peticion y extraer informacion de
+ * una base de datos.
+ *
+ * @param db_name -Es la cadena que define la ubicacion y nombre de la base
+ * de datos.
+ * @param query -Esta es la indicacion de la peticion que se le debe pasar a 
+ * la base de datos. Debe de ser de tipo SELECT respetando la sintaxis del 
+ * manejador de base de datos.
+ * @param db -Es el apuntador al objeto que tiene la base de datos a realizar
+ * la peticion @query.
+ * @param param_dicc -Es una estructura de datos o aquello que queramos que 
+ * la funcion @callback reciba como parametro del usuario programador.
+ * @param callback -Es un apuntador a una funcion que devuelve un entero. Su 
+ * funcion es la de manejar como el programador crea conveniente aquella 
+ * informacion que recibira del SELECT de @query.
+ * @return Un entero 0 si todo sale bien y 1 en caso contrario.
+ */
 int get_query(char *db_name,
 	      char *query,
 	      sqlite3* db,

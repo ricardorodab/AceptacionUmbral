@@ -46,10 +46,14 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include "conexion.h"
-#include "ciudad.h"
 #include <string.h>
 #include <glib.h> 
+#include "conexion.h"
+#include "ciudad.h"
+#include "temperatura.h"
+#include "ruta.h"
+#include "lote.h"
+#include "aceptacion.h"
 
 /**
  * @brief Linea del codigo actual.
@@ -172,8 +176,8 @@ int conecta_ciudades(void *param_usr, int argc, char **argv,char **azColName)
   GHashTable *dicc_uno, *dicc_dos;
   // Instanciamos todo lo que la conexion de un par de ciudades usa.
   CIUDAD *ciudad_uno, *ciudad_dos; 
-  int *num_uno = malloc(sizeof(int*));
-  int *num_dos = malloc(sizeof(int*));
+  int *num_uno = malloc(sizeof(int));
+  int *num_dos = malloc(sizeof(int));
   double distancia;
   //Asignamos los valores de la base de datos a las variables o una de error:
   *num_uno = argv[0] ? atoi(argv[0]) : -1;
@@ -206,7 +210,12 @@ int main(int argc, char** argv)
 {
   //Definimos las variables que usaremos en el programa:
   GHashTable *cities;
+  //A leer de externo:
   char *nombre_base;
+  GArray *muestra; 
+  int muestra_size;
+  double P, T;
+  double PESO_DESC = 2;
   //En la variable cities se encuentran toda la informacion de las ciudades.
   cities = g_hash_table_new_full(g_int_hash,
 				 g_int_equal,
@@ -218,5 +227,36 @@ int main(int argc, char** argv)
      get_query(nombre_base,QUERY2,db,(void*)cities,conecta_ciudades)){
     main_imprime_error("Error al conectar las ciudades.",LINEA-2);
   }
+  // AQUI TENEMOS QUE INICIALIZAR MUESTRA;
+  //109,160,200,212
+  muestra_size = 5;
+  muestra = g_array_sized_new (FALSE, FALSE, sizeof(int),muestra_size);
+  int *a,*b,*c,*d,*e;
+  a = malloc(sizeof(int*));
+  b = malloc(sizeof(int*));
+  c = malloc(sizeof(int*));
+  d = malloc(sizeof(int*));
+  e = malloc(sizeof(int*));
+  *a = 109;
+  *b = 160;
+  *c = 200;
+  *d = 212;
+  *e = 239;
+  g_array_append_val(muestra,*a);
+  g_array_append_val(muestra,*b);
+  g_array_append_val(muestra,*c);
+  g_array_append_val(muestra,*d);
+  g_array_append_val(muestra,*e);
+  RUTA *ruta_inicial_aleatoria = init_ruta(cities,muestra,
+					   muestra_size,PESO_DESC);
+  //LOTE *lote = init_lote(ruta_inicial_aleatoria);
+  P = .85; // .85 <= P <= .95
+  T = 8;
+  TEMPERATURA *temperatura = init_temperatura(T,P);
+  temperatura_inicial(ruta_inicial_aleatoria,temperatura,temperatura->factor);
+  //INICIA LA HEURISTICA:
+  RUTA *result = aceptacion_por_umbrales(temperatura,ruta_inicial_aleatoria);
+  imprime_ruta(result);
+  
   return 0;
 } //Fin de main.c

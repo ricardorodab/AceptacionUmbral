@@ -1,3 +1,5 @@
+#ifndef LOTE_H
+#define LOTE_H
 #include "solucion.h"
 #include "ruta.h"
 #include "temperatura.h"
@@ -8,4 +10,6 @@ typedef struct Lote {
   RUTA *ruta;
 } LOTE;
 
-LOTE* calcula_lote(LOTE *lote,TEMPERATURA *t, RUTA *s);
+LOTE *init_lote(RUTA *ruta);
+void calcula_lote(TEMPERATURA *t, LOTE *s);
+#endif //Fin de lote.h

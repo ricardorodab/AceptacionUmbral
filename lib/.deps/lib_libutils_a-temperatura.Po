@@ -1,3 +1,0 @@
-lib/lib_libutils_a-temperatura.o: lib/temperatura.c lib/temperatura.h
-
-lib/temperatura.h:

@@ -1,21 +1,24 @@
 #include "aceptacion.h"
 #include <math.h>
 
+/**
+ * Por efectos de seguir el algoritmo propuesto por las notas
+ * me apego a el nombrado de las variables como t para la estructura
+ * temperatura y s para la solucion (o ruta) s.
+ *
+ */
 RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *s)
-{
-  RUTA *solucion = s;
-  LOTE lote_temp;
-  lote_temp.ruta = s;
-  lote_promedio_soluciones = 0;
-  float p = INFINITY;
+{  
+  LOTE *lote_temp = init_lote(s);
+  double p = INFINITY;
   while(t->valor > EPSILON_TEMP){
-    float p_prima = 0;
-    while(abs(p - p_prima) > EQUILIBRIO_TERM){
+    double p_prima = 0;
+    while(fabs(p - p_prima) > EQUILIBRIO_TERM){
       p_prima = p;
-      calcula_lote(&lote_temp,t,lote_temp.ruta);
-      solucion = (lote_temp.ruta,solucion);
+      calcula_lote(t,lote_temp);
+      p = lote_temp->promedio_soluciones;      
     }
     modificar_temperatura(t);
   }
-  return solucion;
+  return lote_temp->ruta;
 }

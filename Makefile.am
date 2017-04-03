@@ -5,8 +5,12 @@ noinst_LIBRARIES = lib/libutils.a
 END_LIST =
 
 lib_libutils_a_SOURCES =    \
+	lib/aceptacion.c    \
+	lib/aceptacion.h    \
 	lib/ciudad.c        \
 	lib/ciudad.h        \
+	lib/lote.c          \
+	lib/lote.h          \
 	lib/mapa.c          \
 	lib/mapa.h          \
 	lib/ruta.c          \
