@@ -47,7 +47,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glib.h> 
+#include <glib.h>
+#include <ctype.h>
 #include "conexion.h"
 #include "ciudad.h"
 #include "temperatura.h"
@@ -88,9 +89,97 @@ int ERROR = 0;
  */
 void main_imprime_error(char *msg,int linea)
 {
-  char *err = strcat(msg,"-Linea: %d \n");
-  printf(err,linea);
+  char *err = "-Linea:";
+  printf("%s%s%d\n",msg,err,linea);
   exit(1);
+}
+
+/**
+ * @brief Manejador y parseador del archivo donde viene la muestra.
+ *
+ * Al requerir una muestra con la que trabajar, nuestro programa 
+ * necesita almacenar esta muestra en un archivo para facilitar las
+ * pruebas y experimentacion del programa.
+ * @param ubicacion_muestra -Es el nombre del archivo donde viene la muestra.
+ * @param muestra_size -Es el tamanio que debe contener nuestra muestra.
+ * @return Un arreglo GArray con los indices de nuestras muestras.
+ *
+ */
+GArray* lee_muestra(char *ubicacion_muestra,int *muestra_size)
+{
+  GArray *muestra;
+  //Esto esta feo pero es rapido y facilita el parseo:
+  GList *entrada = NULL;
+  int linea;
+  char char_file[1];
+  char numero[80];
+  FILE *file;
+  int int_file;
+  file = fopen(ubicacion_muestra,"r+");
+  //Revisamos si el archivo abrio bien.
+  if(file == NULL){
+    main_imprime_error("El archivo no existe o existe un problema al abrirlo.\n",__LINE__);
+  }
+  while((int_file = fscanf(file,"%c",char_file)) != -1)
+    {
+      //Caso especial: Un comentario empezando por '#'
+      if(char_file[0] == '#'){
+	int comment_int = 0;       
+	while(((comment_int = fscanf(file,"%c",char_file)) != -1)
+	      && char_file[0] != '\n'){}
+	if(comment_int == -1)
+	  break;
+      }
+      char *index = malloc(sizeof(char));
+      *index = char_file[0];
+      entrada = g_list_append(entrada,index);
+    }
+  linea = 0;
+  int i = 0;
+  int cant_num = 0;
+  //Inicializamos nuestro arreglo de muestras de tamanio *muestra_size
+  muestra = g_array_sized_new (FALSE, FALSE, sizeof(gint),*muestra_size);
+  GList *l;
+  for(l = entrada; l != NULL; l = l->next)
+    {
+      char *data = (l->data);
+      //Caso linea 0 -> numero de muestras:
+      if(linea == 0){
+	if(*data == '\n'){
+	  linea++;
+	  numero[i] = '\0';
+	  *muestra_size = atoi(numero);
+	  i = 0;
+	}else if(isdigit(*data)){
+	  numero[i] = *data;
+	  i++;
+	}	
+      }else{
+	if(*data == ','){
+	  numero[i] = '\0';
+	  int *val = malloc(sizeof(int));
+	  *val = atoi(numero);
+	  g_array_append_val(muestra,*val);
+	  cant_num++;
+	  i = 0;
+	}else if(l->next == NULL){
+	  numero[i] = *data;
+	  numero[i+1] = '\0';	  
+	  int *val = malloc(sizeof(int));
+	  *val = atoi(numero);
+	  g_array_append_val(muestra,*val);
+	  cant_num++;
+	  i = 0;
+	}else if(isdigit(*data)){
+	  numero[i] = *data;
+	  i++;
+	}
+      }
+    }
+  if(cant_num != *muestra_size)
+    main_imprime_error("No coincide el numero de muestras con estas!",
+		       __LINE__);
+  return muestra;
 }
 
 /**
@@ -194,9 +283,6 @@ int conecta_ciudades(void *param_usr, int argc, char **argv,char **azColName)
   return 0;
 }
 
-
-
-
 /**
  * @brief Metodo principal del programa.
  *
@@ -210,53 +296,78 @@ int main(int argc, char** argv)
 {
   //Definimos las variables que usaremos en el programa:
   GHashTable *cities;
-  //A leer de externo:
-  char *nombre_base;
-  GArray *muestra; 
+  GArray *muestra;
   int muestra_size;
-  double P, T;
-  double PESO_DESC = 2;
+  //A leer de externo ./etc/config.cfg:
+  char *UBICACION_MUESTRA;
+  char *UBICACION_BASE;
+  double P_FACTOR_CAMBIO;
+  double TEMPERATURA_INICIAL;
+  double PESO_DESCONEXION;
+  double EPSILON_EQUILIBRIO;
+  double EPSILON_TEMP;
+  double L_ITERACIONES;
+  
+  //Leemos el archivo de configuracion:
+  GKeyFile *keyfile;
+  GKeyFileFlags flags;
+  GError *error = NULL;
+  keyfile = g_key_file_new ();
+  flags = G_KEY_FILE_NONE;
+  if (!g_key_file_load_from_file (keyfile,
+				  "./etc/config.cfg",
+				  flags, &error))
+    {
+      printf("Error al cargar archivo de configuracion. LINEA= %d",__LINE__);
+      return 1;
+    }
+  
+  //Ahora asignamos a cada una de las variables sus valores del .cfg:
+  // 1. Primero la base de datos:
+  UBICACION_BASE = g_key_file_get_string(keyfile,"DATABASE","UBICACION",NULL);
+  // 2. Variables de experimentacion:
+  L_ITERACIONES = g_key_file_get_double(keyfile,"HEURISTICA",
+					"L_ITERACIONES",NULL);
+  PESO_DESCONEXION = g_key_file_get_double(keyfile,"HEURISTICA",
+					   "PESO_DESCONEXION",NULL);
+  P_FACTOR_CAMBIO = g_key_file_get_double(keyfile,"HEURISTICA",
+					  "P_FACTOR_CAMBIO",NULL);
+  TEMPERATURA_INICIAL = g_key_file_get_double(keyfile,"HEURISTICA",
+					      "TEMPERATURA_INICIAL",NULL);
+  EPSILON_EQUILIBRIO = g_key_file_get_double(keyfile,"HEURISTICA",
+					     "EPSILON_EQUILIBRIO",NULL);
+  EPSILON_TEMP = g_key_file_get_double(keyfile,"HEURISTICA",
+					"EPSILON_TEMP",NULL);
+  // 3. Por ultimo el nombre donde esta la muestra:
+  UBICACION_MUESTRA = g_key_file_get_string(keyfile,"MUESTRA",
+					    "UBICACION",NULL);
+  
   //En la variable cities se encuentran toda la informacion de las ciudades.
   cities = g_hash_table_new_full(g_int_hash,
 				 g_int_equal,
 				 free,free);
-  nombre_base = "./db/hoc.db";
   //Realizamos la conexion a la base y poblamos nuestro hash.
   //Seguido de eso poblamos las conexiones de nuestras ciudades.
-  if(get_query(nombre_base,QUERY1,db,(void*)cities,init_ciudades) ||
-     get_query(nombre_base,QUERY2,db,(void*)cities,conecta_ciudades)){
+  if(get_query(UBICACION_BASE,QUERY1,db,(void*)cities,init_ciudades) ||
+     get_query(UBICACION_BASE,QUERY2,db,(void*)cities,conecta_ciudades)){
     main_imprime_error("Error al conectar las ciudades.",LINEA-2);
   }
-  // AQUI TENEMOS QUE INICIALIZAR MUESTRA;
-  //109,160,200,212
-  muestra_size = 5;
-  muestra = g_array_sized_new (FALSE, FALSE, sizeof(int),muestra_size);
-  int *a,*b,*c,*d,*e;
-  a = malloc(sizeof(int*));
-  b = malloc(sizeof(int*));
-  c = malloc(sizeof(int*));
-  d = malloc(sizeof(int*));
-  e = malloc(sizeof(int*));
-  *a = 109;
-  *b = 160;
-  *c = 200;
-  *d = 212;
-  *e = 239;
-  g_array_append_val(muestra,*a);
-  g_array_append_val(muestra,*b);
-  g_array_append_val(muestra,*c);
-  g_array_append_val(muestra,*d);
-  g_array_append_val(muestra,*e);
+  // AQUI TENEMOS QUE INICIALIZAR Y LEER LA MUESTRA;
+  muestra = lee_muestra(UBICACION_MUESTRA,&muestra_size);
+  // Creamos la ruta y aleatorizamos a la ruta.
   RUTA *ruta_inicial_aleatoria = init_ruta(cities,muestra,
-					   muestra_size,PESO_DESC);
-  //LOTE *lote = init_lote(ruta_inicial_aleatoria);
-  P = .85; // .85 <= P <= .95
-  T = 8;
-  TEMPERATURA *temperatura = init_temperatura(T,P);
+					   muestra_size,PESO_DESCONEXION);
+  // Creamos una temperatura con los parametros del archivo de config.cfg
+  TEMPERATURA *temperatura = init_temperatura(TEMPERATURA_INICIAL,
+					      P_FACTOR_CAMBIO,
+					      EPSILON_TEMP,
+					      EPSILON_EQUILIBRIO);
   temperatura_inicial(ruta_inicial_aleatoria,temperatura,temperatura->factor);
   //INICIA LA HEURISTICA:
-  RUTA *result = aceptacion_por_umbrales(temperatura,ruta_inicial_aleatoria);
-  imprime_ruta(result);
-  
+  RUTA *result = aceptacion_por_umbrales(temperatura,
+					 ruta_inicial_aleatoria,
+					 L_ITERACIONES);
+  //imprime_ruta(result);
+  printf("El peso es: %f \n",result->distancia);
   return 0;
 } //Fin de main.c

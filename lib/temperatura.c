@@ -6,11 +6,15 @@
 #include <stdio.h>
 
 
-TEMPERATURA* init_temperatura(double valor, double factor)
+TEMPERATURA* init_temperatura(double valor, double factor,
+			      double epsilon_temp,
+			      double epsilon_equilibrio)
 {
   TEMPERATURA *temp = malloc(sizeof(TEMPERATURA));
   temp->valor = valor;
   temp->factor = factor;
+  temp->epsilon_temp = epsilon_temp;
+  temp->epsilon_equilibrio = epsilon_equilibrio;
   return temp;
 }
 
@@ -56,7 +60,7 @@ void temperatura_inicial(RUTA *s, TEMPERATURA *T, double P)
 {
   double T1,T2;
   double p_peque = porcentajes_aceptados(s,T->valor);
-  if(fabs(P-p_peque) <= EPSILON_TEMP)
+  if(fabs(P-p_peque) <= T->epsilon_temp)
     return;
   if(p_peque < P){
     while(p_peque < P)

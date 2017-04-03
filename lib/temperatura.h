@@ -3,18 +3,23 @@
 #include "ruta.h"
 #include "funcion.h"
 
-#define EPSILON_TEMP 0.2
-#define EQUILIBRIO_TERM 1
+/* @TODO quitar esta parte */
+//#define EPSILON_TEMP 0.2
+//#define EQUILIBRIO_TERM 1
 
 
 
-typedef struct temp {
+typedef struct temp {  
   double valor;
   double factor;
+  double epsilon_temp;
+  double epsilon_equilibrio;
 } TEMPERATURA;
 
 
-TEMPERATURA* init_temperatura(double valor, double factor);
+TEMPERATURA* init_temperatura(double valor, double factor,
+			      double epsilon_temp,
+			      double epsilon_equilibrio);
 double porcentajes_aceptados(RUTA *s, double T);
 double busqueda_binaria(RUTA *s,double T1, double T2, double P);
 void temperatura_inicial(RUTA *s, TEMPERATURA *T, double P);

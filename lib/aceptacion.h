@@ -4,6 +4,6 @@
 #include "temperatura.h"
 #include "lote.h"
 
-RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *r);
+RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *r,double L);
 
 #endif //Fin de aceptacion.h

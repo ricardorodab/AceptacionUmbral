@@ -11,5 +11,5 @@ typedef struct Lote {
 } LOTE;
 
 LOTE *init_lote(RUTA *ruta);
-void calcula_lote(TEMPERATURA *t, LOTE *s);
+void calcula_lote(TEMPERATURA *t, LOTE *s, double L);
 #endif //Fin de lote.h

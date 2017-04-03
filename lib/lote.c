@@ -1,6 +1,9 @@
 #include "lote.h"
 #include <stdlib.h>
 
+//Borrar este:
+#include <stdio.h>
+
 LOTE* init_lote(RUTA *ruta)
 {
   LOTE *lote = malloc(sizeof(LOTE));
@@ -10,11 +13,10 @@ LOTE* init_lote(RUTA *ruta)
 }
 
 /**
- * @TODO liberar memoria.
+ *
  */
-void calcula_lote(TEMPERATURA *t, LOTE *lote)
+void calcula_lote(TEMPERATURA *t, LOTE *lote, double L)
 {
-  int L = 500; //Numero de soluciones a observar.
   int c = 0;
   double r = 0.0;
   while(c < L){ //Donde L es el numero de soluciones a observar.
@@ -24,8 +26,6 @@ void calcula_lote(TEMPERATURA *t, LOTE *lote)
     if(s_prima_fun <= (s_fun+(t->valor))){
       destroy_vecino(lote->ruta);
       lote->ruta = s_prima;
-
-      //Liberar memoria del vecino.
       c++;
       r += s_prima_fun;
     }

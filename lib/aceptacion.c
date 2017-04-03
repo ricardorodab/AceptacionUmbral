@@ -7,16 +7,16 @@
  * temperatura y s para la solucion (o ruta) s.
  *
  */
-RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *s)
+RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *s, double L)
 {  
   LOTE *lote_temp = init_lote(s);
   double p = INFINITY;
-  while(t->valor > EPSILON_TEMP){
+  while(t->valor > t->epsilon_temp){
     double p_prima = 0;
-    while(fabs(p - p_prima) > EQUILIBRIO_TERM){
+    while(fabs(p - p_prima) > t->epsilon_equilibrio){
       p_prima = p;
-      calcula_lote(t,lote_temp);
-      p = lote_temp->promedio_soluciones;      
+      calcula_lote(t,lote_temp,L);
+      p = lote_temp->promedio_soluciones;
     }
     modificar_temperatura(t);
   }

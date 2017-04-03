@@ -2,6 +2,8 @@
 
 # Script para eliminar el exceso de documentos que la herramienta autotools genera:
 make clean ;
+rm -r lib/.deps/
+rm -r src/.deps/
 rm config.guess ;
 rm config.sub ;
 rm Makefile ;
@@ -15,3 +17,4 @@ rm configure ;
 rm depcomp ;
 rm install-sh ;
 rm missing ; 
+rm -r ./*~ ;
