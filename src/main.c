@@ -362,12 +362,17 @@ int main(int argc, char** argv)
 					      P_FACTOR_CAMBIO,
 					      EPSILON_TEMP,
 					      EPSILON_EQUILIBRIO);
+  printf("Temperatura? %f\n",temperatura->valor);
   temperatura_inicial(ruta_inicial_aleatoria,temperatura,temperatura->factor);
   //INICIA LA HEURISTICA:
+  printf("Temperatura? %f\n",temperatura->valor);
   RUTA *result = aceptacion_por_umbrales(temperatura,
 					 ruta_inicial_aleatoria,
 					 L_ITERACIONES);
   //imprime_ruta(result);
+  printf("DISTANCIA_MAX = %f \n",result->distancia_max);
   printf("El peso es: %f \n",result->distancia);
+  printf("Su funcion es: %f \n",funcion_costo(result));
   return 0;
 } //Fin de main.c
+

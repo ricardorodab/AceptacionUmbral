@@ -22,14 +22,15 @@ TEMPERATURA* init_temperatura(double valor, double factor,
  *
  * @TODO 1. La N = s->num_ciudades? 2. Liberar memoria
  */
-double porcentajes_aceptados(RUTA *s, double T)
+double porcentajes_aceptados(RUTA *ruta, double T)
 {
+  RUTA *s = ruta;
+  int cota = s->num_ciudades;
   double c = 0;
   int i;
-  for(i = 0; i < s->num_ciudades; i++)
+  for(i = 0; i < cota; i++)
     {
       RUTA *s_prima = get_ruta_vecina(s);
-
       if(funcion_costo(s_prima) <= (funcion_costo(s)+T))
 	c += 1.0;      
       s = s_prima;
@@ -41,10 +42,11 @@ double porcentajes_aceptados(RUTA *s, double T)
 /**
  * @TODO definir et y ep como ceros virtuales.
  */
-double busqueda_binaria(RUTA *s,double T1, double T2, double P)
+double busqueda_binaria(RUTA *s,double T1, double T2,
+			double P,TEMPERATURA *temp)
 {
-  double et = 0.2;
-  double ep = 0.2;
+  double et = temp->epsilon_temp;
+  double ep = temp->epsilon_equilibrio;
   double Tm = (T1+T2)/2;
   if((T2-T1) < et)
     return Tm;
@@ -52,8 +54,8 @@ double busqueda_binaria(RUTA *s,double T1, double T2, double P)
   if(fabs(P-p_peque) < ep)
     return Tm;
   if(p_peque > P)
-    return busqueda_binaria(s,T1,Tm,P);
-  return busqueda_binaria(s,Tm,T2,P);
+    return busqueda_binaria(s,T1,Tm,P,temp);
+  return busqueda_binaria(s,Tm,T2,P,temp);
 }
 
 void temperatura_inicial(RUTA *s, TEMPERATURA *T, double P)
@@ -79,7 +81,7 @@ void temperatura_inicial(RUTA *s, TEMPERATURA *T, double P)
     T1 = T->valor;
     T2 = 2*T->valor;
   }
-  T->valor = busqueda_binaria(s,T1,T2,P);
+  T->valor = busqueda_binaria(s,T1,T2,P,T);
 }
 
 

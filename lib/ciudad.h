@@ -48,6 +48,7 @@
 #ifndef CIUDAD_H
 #define CIUDAD_H
 #include <glib.h>
+#include <stdbool.h>
 
 /**
  * @brief La estructura ciudad contiene datos basicos de ella.
@@ -130,6 +131,15 @@ CIUDAD* get_vecino(CIUDAD *ciudad, int id);
  *
  */
 CIUDAD_VECINO* init_ciudad_vecino(CIUDAD *vec,double dist);
+
+/**
+ * @brief Funcion que nos regesa un booleano afirmando si son vecinos.
+ *
+ * @param ciudad - Es la ciudad "origen" a revisar.
+ * @param vecino - Es la segunda ciudad que necesitamos a revisar.
+ * @return true si es que si son vecinos.
+ */
+bool son_vecinos(CIUDAD *ciudad, CIUDAD *vecino); 
 
 /**
  * @brief Facilita la liberacion de memoria de la tupla que contendra vecinos

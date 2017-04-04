@@ -29,6 +29,7 @@
 #include "ruta.h"
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 
 /**
  * @file ruta.c
@@ -85,6 +86,7 @@ void insert_ciudades_aux(RUTA *ruta, GHashTable *cities,
       g_array_remove_index(muestra,r);
       size--;      
     }
+  set_distancia_maxima_ruta(ruta);
   recalcula_distancia(ruta);
 }
 
@@ -152,6 +154,29 @@ void destroy_ruta(RUTA *ruta)
 }
 
 /**
+ * @TODO COMMENT:
+ */
+void set_distancia_maxima_ruta(RUTA *ruta)
+{
+  CIUDAD *ciudad_i, *ciudad_j;
+  int key_1,key_2;
+  double distancia_max = 0;
+  int i,j;
+  for(i = 0; i < ruta->num_ciudades; i++){
+    for(j = i+1; j < ruta->num_ciudades; j++){
+      key_1 = g_array_index(ruta->arreglo,gint,i);
+      ciudad_i = g_hash_table_lookup(ruta->ciudades,&key_1);
+      key_2 = g_array_index(ruta->arreglo,gint,j);
+      ciudad_j = g_hash_table_lookup(ruta->ciudades,&key_2);
+      if(son_vecinos(ciudad_i,ciudad_j))
+	if(get_distancia_ciudad(ciudad_i,ciudad_j) > distancia_max)
+	  distancia_max = get_distancia_ciudad(ciudad_i,ciudad_j);
+    }
+  }
+  ruta->distancia_max = distancia_max;
+}
+
+/**
  * Esta funcion calcula el peso que tiene una ruta que
  * le sea dada de la siguiente manera:
  * calculamos la ditancia de la ciudad i con la i+1 usando
@@ -179,19 +204,19 @@ void recalcula_distancia(RUTA *ruta)
       vecino = g_hash_table_lookup(ruta->ciudades,&index_dos);      
       val_dist = get_distancia_ciudad(temp,vecino);
       //Si resulta un -1 o algo raro lo ignoramos y aumentamos desconectados.
-      if(0 > val_dist){
+      if(0 > val_dist) {
 	no_conectados++;	
       }else{
         //Sumamos la distancia a la distancia total.
 	//Revisamos que si la nueva distancia es la mayor la sustituimos.
 	dist += val_dist;
-	if(val_dist > ruta->distancia_max)	
-	  ruta->distancia_max = val_dist;
       }    
     }
-  ruta->ciudades_desconectadas = no_conectados;;
+  ruta->ciudades_desconectadas = no_conectados;
   // MAX(P)X(C=2) si (u,v) no estan conectados.
   double no_conect;
+  /**if(ruta->ciudades_desconectadas == 0)
+     printf("Si es factible %d\n",ruta->ciudades_desconectadas);*/
   no_conect = (no_conectados*ruta->distancia_max*ruta->peso_desconexion);
   ruta->distancia = dist+no_conect;
 }
@@ -237,7 +262,7 @@ RUTA* get_ruta_vecina(RUTA* ruta)
       }else{
 	g_array_append_val(muestra,g_array_index(ruta->arreglo,gint,i));
       }
-    }
+    }  
   vecino->arreglo = muestra;
   recalcula_distancia(vecino);
   return vecino;

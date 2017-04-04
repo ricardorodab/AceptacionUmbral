@@ -118,6 +118,11 @@ void destroy_vecino(RUTA *vecino);
 void destroy_ruta(RUTA *ruta);
 
 /**
+ * @TODO COMMENT:
+ */
+void set_distancia_maxima_ruta(RUTA *ruta);
+
+/**
  * @brief Dada una ruta y un peso maximo, calcula el la distancia de una ruta.
  *
  * @param ruta -Es la ruta que queremos obtener la distancia.

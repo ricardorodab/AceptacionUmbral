@@ -83,8 +83,6 @@ void delete_ciudad(CIUDAD *ciudad)
 {
   if(ciudad->vecinos != NULL)
     g_hash_table_destroy(ciudad->vecinos);
-  free(ciudad->name);
-  free(ciudad->country);
   free(ciudad);
 }
 
@@ -118,6 +116,18 @@ CIUDAD_VECINO* init_ciudad_vecino(CIUDAD *vec,double dist)
 }
 
 /**
+ * Evitamos tener que escribir codigo de vecindad fuera del archivo
+ * en cuestion. Ademas que se utiliza en varias ocasiones en codigo
+ * repetitivo.
+ *
+ */
+bool son_vecinos(CIUDAD *ciudad, CIUDAD *vecino)
+{
+  int *id = &vecino->id;
+  return g_hash_table_contains(ciudad->vecinos,id);
+}
+
+/**
  * Al tener que asignarle memoria de manera dinamica a las tuplas de los 
  * vecinos, hay que eliminar las tuplas de la memoria igual de manera manual.
  *
@@ -138,7 +148,7 @@ void delete_ciudad_vecino(CIUDAD_VECINO* tupla)
 void add_vecino(CIUDAD *ciudad, CIUDAD *vecino,double distancia)
 {
   GHashTable *ciudad_vecino = ciudad->vecinos;
-  GHashTable *vecino_vecino = ciudad->vecinos;
+  GHashTable *vecino_vecino = vecino->vecinos;
   //Primer aproach con un apuntador de double:
   //double *dist = g_malloc(sizeof(double));
   //memcpy(dist,&distancia,sizeof(double)); 

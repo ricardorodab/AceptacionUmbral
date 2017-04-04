@@ -31,5 +31,13 @@ src_main_LDADD = $(top_builddir)/lib/libutils.a
 src_main_CFLAGS = $(AM_CFLAGS) 
 src_main_SOURCES = src/main.c src/conexion.c src/conexion.h #intefaz-grafica.c/h
 
+TESTS = test/test-ciudad
+
+TESTCIUDADSOURCES = test/test-ciudad.c
+
+test_test_ciudad_CFLAGS = $(AM_CFLAGS) $(top_builddir)/lib/libutils.a 
+test_test_mat_LDADD = $(top_builddir)/lib/libutils.a  
+
+check_PROGRAMS = $(TESTS)
 
 #SUBDIRS = lib src

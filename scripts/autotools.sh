@@ -11,4 +11,3 @@ pwd ;
 
 automake --add-missing --foreign ;
 ./configure ;
-make 

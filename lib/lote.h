@@ -7,7 +7,9 @@
 
 typedef struct Lote {
   double promedio_soluciones;
-  RUTA *ruta;
+  RUTA *mejor_solucion;  
+  double mejor_solucion_fun;
+  RUTA *ruta;  
 } LOTE;
 
 LOTE *init_lote(RUTA *ruta);
