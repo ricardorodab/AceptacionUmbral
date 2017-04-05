@@ -223,6 +223,7 @@ void recalcula_distancia(RUTA *ruta)
   /**if(ruta->ciudades_desconectadas == 0)
      printf("Si es factible %d\n",ruta->ciudades_desconectadas);*/
   no_conect = (no_conectados*ruta->distancia_max*ruta->peso_desconexion);
+
   ruta->distancia = dist+no_conect;
 }
 

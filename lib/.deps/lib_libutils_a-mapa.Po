@@ -1,0 +1,1 @@
+lib/lib_libutils_a-mapa.o: lib/mapa.c

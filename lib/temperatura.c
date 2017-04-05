@@ -31,8 +31,12 @@ double porcentajes_aceptados(RUTA *ruta, double T)
   for(i = 0; i < cota; i++)
     {
       RUTA *s_prima = get_ruta_vecina(s);
+      //printf("Distancia s : %f\n",s->distancia);
+      //printf("Distancia s': %f\n",s_prima->distancia);
+      //printf("DESCONEC': %d\n",ruta->ciudades_desconectadas);
+      //printf("IF: %f <= %f + %f\n",funcion_costo(s_prima),funcion_costo(s),T);
       if(funcion_costo(s_prima) <= (funcion_costo(s)+T))
-	c += 1.0;      
+	c++;      
       s = s_prima;
       //Liberar memoria de s.
     }
@@ -62,6 +66,8 @@ void temperatura_inicial(RUTA *s, TEMPERATURA *T, double P)
 {
   double T1,T2;
   double p_peque = porcentajes_aceptados(s,T->valor);
+  //printf("1. %f\n",T->valor);
+  // printf("1.5 %f\n",p_peque);
   if(fabs(P-p_peque) <= T->epsilon_temp)
     return;
   if(p_peque < P){
@@ -72,16 +78,20 @@ void temperatura_inicial(RUTA *s, TEMPERATURA *T, double P)
       }
     T1 = T->valor/2;
     T2 = T->valor;
+    //printf("2. %f\n",T->valor);
   }else{
     while(p_peque > P)
       {
 	T->valor = T->valor/2;
+	//printf("T->VALOR. %f\n",T->valor);
 	p_peque = porcentajes_aceptados(s,T->valor);
+	//printf("pe_peue %f\n",p_peque);
       }
     T1 = T->valor;
     T2 = 2*T->valor;
   }
   T->valor = busqueda_binaria(s,T1,T2,P,T);
+  //printf("3. %f\n",T->valor);
 }
 
 

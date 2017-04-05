@@ -234,7 +234,7 @@ int init_ciudades(void *param_usr, int argc, char **argv,char **azColName)
   //La insertamos en el diccionario de ciudades.
   int d = g_hash_table_size(diccionario);
   //Las llaves deben de ser almacenadas en el heap para no perderlas.
-  int *key = malloc(sizeof(int*));
+  int *key = malloc(sizeof(int));
   *key = id;
   g_hash_table_insert(diccionario,key,ciudad);
   return ERROR;
@@ -362,17 +362,23 @@ int main(int argc, char** argv)
 					      P_FACTOR_CAMBIO,
 					      EPSILON_TEMP,
 					      EPSILON_EQUILIBRIO);
-  printf("Temperatura? %f\n",temperatura->valor);
-  temperatura_inicial(ruta_inicial_aleatoria,temperatura,temperatura->factor);
+  //printf("Temperatura? %f\n",temperatura->valor);
+  //temperatura_inicial(ruta_inicial_aleatoria,temperatura,temperatura->factor);
+  //temperatura->valor = 4;
   //INICIA LA HEURISTICA:
-  printf("Temperatura? %f\n",temperatura->valor);
+  //printf("Temperatura? %f\n",temperatura->valor);
   RUTA *result = aceptacion_por_umbrales(temperatura,
 					 ruta_inicial_aleatoria,
 					 L_ITERACIONES);
   //imprime_ruta(result);
-  printf("DISTANCIA_MAX = %f \n",result->distancia_max);
-  printf("El peso es: %f \n",result->distancia);
-  printf("Su funcion es: %f \n",funcion_costo(result));
+  //printf("DISTANCIA_MAX = %f \n",result->distancia_max);
+  //printf("El peso es: %f \n",result->distancia);
+  //printf("Su funcion es: %f \n",funcion_costo(result));
+  for(int i = 0; i < result->num_ciudades; i++)
+    {
+      printf("%d,",g_array_index(result->arreglo,gint,i));
+      printf("\n%d,",result->ciudades_desconectadas);
+    }
   return 0;
 } //Fin de main.c
 

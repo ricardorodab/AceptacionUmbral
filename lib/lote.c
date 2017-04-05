@@ -22,7 +22,7 @@ void calcula_lote(TEMPERATURA *t, LOTE *lote, double L)
   int c = 0;
   int cota = L*100;
   double r = 0.0;
-  printf("%d < %f \n",c,L); 
+  //  printf("%d < %f \n",c,L); 
   while(c < L){ // && (COTA > 0)){ //Donde L es el numero de soluciones a observar.
     RUTA *s_prima = get_ruta_vecina(lote->ruta);    
     double s_prima_fun = funcion_costo(s_prima);

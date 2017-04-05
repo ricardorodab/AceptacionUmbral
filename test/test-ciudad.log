@@ -1,0 +1,2 @@
+/ciudad/add_vecino: OK
+PASS test/test-ciudad (exit status: 0)
