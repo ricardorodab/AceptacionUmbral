@@ -361,12 +361,18 @@ int main(int argc, char** argv)
   TEMPERATURA *temperatura = init_temperatura(TEMPERATURA_INICIAL,
 					      P_FACTOR_CAMBIO,
 					      EPSILON_TEMP,
-					      EPSILON_EQUILIBRIO);  
+					      EPSILON_EQUILIBRIO);
+  printf("INICIAL:%f\n",temperatura->valor);
+  temperatura_inicial(ruta_inicial_aleatoria,temperatura,P_FACTOR_CAMBIO);
+  printf("FINAL:%f\n",temperatura->valor);
+  temperatura->valor = 8;
   //INICIA LA HEURISTICA:
   RUTA *result = aceptacion_por_umbrales(temperatura,
 					 ruta_inicial_aleatoria,
 					 L_ITERACIONES);
-  
-  return 0;
+  imprime_ruta(result);
+  printf("FUNCION:%f\n",funcion_costo(result));
+  imprime_gps(result);
+  return 0; 
 } //Fin de main.c
 

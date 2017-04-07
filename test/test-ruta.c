@@ -41,8 +41,6 @@ RUTA* genera_ruta_aleatoria_desconectados(void)
   int pais_size;
   srand(time(NULL));
   int r;
-  if(r == 0)
-    r++;
   int size = rand() % 500;
   size++;
   int i;
@@ -59,7 +57,7 @@ RUTA* genera_ruta_aleatoria_desconectados(void)
       latitude = ((double)(rand() % 10000))/100.0;
       longitude = ((double)(rand() % 10000))/100.0;
       ciudad = malloc(sizeof(CIUDAD));
-      init_ciudad(ciudad,i,nombre,pais,poblacion,
+      init_ciudad(ciudad,i+1,nombre,pais,poblacion,
 		  latitude,longitude);
       int *key = malloc(sizeof(int));
       *key = i+1;
@@ -114,7 +112,7 @@ RUTA* genera_ruta_aleatoria(void)
       latitude = ((double)(rand() % 10000))/100.0;
       longitude = ((double)(rand() % 10000))/100.0;
       ciudad = malloc(sizeof(CIUDAD));
-      init_ciudad(ciudad,i,nombre,pais,poblacion,
+      init_ciudad(ciudad,i+1,nombre,pais,poblacion,
 		  latitude,longitude);
       int *key = malloc(sizeof(int));
       *key = i+1;
@@ -170,7 +168,6 @@ static void test_vecinos_ruta(RutaAux *ayuda,
     int j = 0;
     int dif = 0;
     RUTA *vecina = get_ruta_vecina(ayuda->ruta);
-    set_distancias(vecina);
     g_assert(&vecina->num_ciudades != &ayuda->ruta->num_ciudades);
     g_assert(vecina->distancia_max == ayuda->ruta->distancia_max);
     g_assert(&vecina->arreglo != &ayuda->ruta->arreglo);
@@ -215,47 +212,48 @@ static void test_set_distancias(RutaAux *ayuda,
   RUTA *ruta = ayuda->ruta;
   RUTA *vecino;
   //Numero de veces que se corre > 10 == 6 minutos
-  int i = 2;
+  int i = 50;
   double distancia, distancia_max;
   double ciudades_desconectadas;
   while(i--)
     {
       vecino = get_ruta_vecina(ruta);
-      g_assert(ruta->AVG == vecino->AVG);
+      //Esto no ocurre por la definicion de AVG y aletoriedad de pruebas.
+      /*if(ruta->ciudades_desconectadas == vecino->ciudades_desconectadas)
+	g_assert(ruta->AVG == vecino->AVG);*/
       RUTA *descon = genera_ruta_aleatoria_desconectados();
       set_distancias(descon);
       g_assert(descon->ciudades_desconectadas ==
 	       descon->num_ciudades-1);
       g_assert(descon->distancia_max == 0);
-      //g_assert(descon->distancia == 0);
+      g_assert(descon->distancia == 0);
       int j;
-      int key_1,key_2;
-      /*for(j = 0; j < descon->num_ciudades-1; j++)
+      int *key_1 = malloc(sizeof(int));
+      int *key_2 = malloc(sizeof(int));
+      for(j = 0; j < descon->num_ciudades-1; j++)
       {	
 	distancia = descon->distancia;
 	distancia_max = descon->distancia_max;
 	ciudades_desconectadas = descon->ciudades_desconectadas;
 	int k = j+1;
-	key_1 = g_array_index(ruta->arreglo,gint,j);
-	key_2 = g_array_index(ruta->arreglo,gint,k);
-	CIUDAD *city_1 = g_hash_table_lookup(descon->ciudades,&key_1);
-	CIUDAD *city_2 = g_hash_table_lookup(descon->ciudades,&key_2);
+	*key_1 = g_array_index(descon->arreglo,gint,j);
+	*key_2 = g_array_index(descon->arreglo,gint,k);
+	CIUDAD *city_1 = g_hash_table_lookup(descon->ciudades,key_1);
+	CIUDAD *city_2 = g_hash_table_lookup(descon->ciudades,key_2);
 	double ran = rand() % 999999;
 	g_assert_false(son_vecinos(city_1,city_2));	
-	//g_assert(descon->ciudades_desconectadas > 0);
-	add_vecino(g_hash_table_lookup(descon->ciudades,&key_1),
-		   g_hash_table_lookup(descon->ciudades,&key_2),
-		   ran);	
+	g_assert(descon->ciudades_desconectadas > 0);
+	add_vecino(city_1,city_2,ran);
 	set_distancias(descon);
-	/*g_assert_true(son_vecinos
-		      (g_hash_table_lookup(descon->ciudades,&key_2),
-		      g_hash_table_lookup(descon->ciudades,&key_1)));*/
-	//g_assert(distancia < descon->distancia);	 
-	//g_assert(distancia_max <= descon->distancia_max);
-	//g_assert(ciudades_desconectadas ==
-	//descon->ciudades_desconectadas-1);
-      //}
-      //g_assert(descon->ciudades_desconectadas == 0);
+	g_assert_true(son_vecinos
+		      (g_hash_table_lookup(descon->ciudades,key_2),
+		       g_hash_table_lookup(descon->ciudades,key_1)));
+	g_assert(distancia < descon->distancia);	 
+	g_assert(distancia_max <= descon->distancia_max);
+	g_assert(ciudades_desconectadas ==
+		 descon->ciudades_desconectadas+1);
+      }
+      g_assert(descon->ciudades_desconectadas == 0);
     }
 }
 

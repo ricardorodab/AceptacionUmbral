@@ -151,4 +151,9 @@ RUTA* get_ruta_vecina(RUTA* ruta);
  *
  */
 void imprime_ruta(RUTA* ruta);
+
+/**
+ * @TODO documentar
+ */
+void imprime_gps(RUTA* ruta);
 #endif //Fin de ruta.h

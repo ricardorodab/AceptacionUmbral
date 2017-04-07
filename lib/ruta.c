@@ -165,10 +165,11 @@ void set_distancias(RUTA *ruta)
   int key_1,key_2;
   double distancia_max = 0;  
   double distancia = 0;
+  int aristas = 0;
   int ciudades_desconectadas = ruta->num_ciudades-1;
   double AVG = 0;
   int i,j;
-  for(i = 0; i < ruta->num_ciudades-1; i++){
+  for(i = 0; i < ruta->num_ciudades; i++){
     for(j = i+1; j < ruta->num_ciudades; j++){
       key_1 = g_array_index(ruta->arreglo,gint,i);
       key_2 = g_array_index(ruta->arreglo,gint,j);
@@ -177,6 +178,8 @@ void set_distancias(RUTA *ruta)
       ciudad_j = g_hash_table_lookup(ruta->ciudades,&key_2);
       //Revisamos que sean vecinas: 
       if(son_vecinos(ciudad_i,ciudad_j)){
+	AVG += get_distancia_ciudad(ciudad_i,ciudad_j);
+	aristas++;
 	if(get_distancia_ciudad(ciudad_i,ciudad_j) > distancia_max)
 	  distancia_max = get_distancia_ciudad(ciudad_i,ciudad_j);
       }
@@ -196,7 +199,7 @@ void set_distancias(RUTA *ruta)
   }
   ruta->distancia = distancia;
   ruta->ciudades_desconectadas = ciudades_desconectadas;
-  ruta->AVG = distancia/(ruta->num_ciudades-ciudades_desconectadas);
+  ruta->AVG = AVG/aristas; //distancia/((ruta->num_ciudades-1)-ciudades_desconectadas);
   ruta->distancia_max = distancia_max;
 }
 
@@ -209,11 +212,12 @@ void set_distancias(RUTA *ruta)
  * Si dos ciudades no estan conectadas su valor de peso sera
  * la constante @peso_desconexion por el valor mayor de distancia.
  *
- * @TODO C -constante de max camino.
+ * @TODO C - Rehacer la funcion..
  */
 void recalcula_distancia(RUTA *ruta)
 {
-  CIUDAD *temp, *vecino;
+  set_distancias(ruta);
+  /*  CIUDAD *temp, *vecino;
   int i,j;  
   double val_dist, no_conectados,dist;
   dist = 0;
@@ -238,11 +242,11 @@ void recalcula_distancia(RUTA *ruta)
     }
   ruta->ciudades_desconectadas = no_conectados;
   // MAX(P)X(C=2) si (u,v) no estan conectados.
-  double no_conect;
-  /**if(ruta->ciudades_desconectadas == 0)
-     printf("Si es factible %d\n",ruta->ciudades_desconectadas);*/
+  //double no_conect;
+  //if(ruta->ciudades_desconectadas == 0)
+  //   printf("Si es factible %d\n",ruta->ciudades_desconectadas);
   no_conect = (no_conectados*ruta->distancia_max*ruta->peso_desconexion);
-  ruta->distancia = dist+no_conect;
+  ruta->distancia = dist+no_conect;*/
 }
 
 /**
@@ -300,10 +304,34 @@ RUTA* get_ruta_vecina(RUTA* ruta)
 void imprime_ruta(RUTA* ruta)
 {
   int i;
+  int ruta_id[ruta->num_ciudades];
+  int *key = malloc(sizeof(int));
   for(i = 0; i < ruta->num_ciudades; i++)
     {
-      int key = (g_array_index(ruta->arreglo,gint,i));      
-      CIUDAD *temp = g_hash_table_lookup(ruta->ciudades,&key);
-      imprime_ciudad(temp);
+      *key = (g_array_index(ruta->arreglo,gint,i));
+      ruta_id[i] = *key;
+      CIUDAD *temp = g_hash_table_lookup(ruta->ciudades,key);
+      //imprime_ciudad(temp);
+    }
+  for(i = 0; i < ruta->num_ciudades-1; i++)
+    {
+      printf("%d->",ruta_id[i]);
+    }
+  printf("%d\n",ruta_id[i]);
+  free(key);
+}
+
+void imprime_gps(RUTA* ruta)
+{
+  int i;
+  int ruta_id[ruta->num_ciudades];
+  int *key = malloc(sizeof(int));
+  for(i = 0; i < ruta->num_ciudades; i++)
+    {
+      *key = (g_array_index(ruta->arreglo,gint,i));
+      ruta_id[i] = *key;
+      CIUDAD *temp = g_hash_table_lookup(ruta->ciudades,key);
+      printf("%f,",temp->latitude);
+      printf("%f\n",temp->longitude);
     }
 }
