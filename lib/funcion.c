@@ -1,12 +1,7 @@
 #include "funcion.h"
-//Eliminar:
-#include <stdio.h>
 
 double mi_avg(RUTA *ruta)
 {
-  //double desc = (ruta->distancia_max*ruta->ciudades_desconectadas);
-  //double suma = ruta->distancia-desc;
-  //double num = (double)(ruta->num_ciudades-ruta->ciudades_desconectadas);
   return ruta->AVG;
 }
 

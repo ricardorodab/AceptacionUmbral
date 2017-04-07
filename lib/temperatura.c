@@ -2,9 +2,6 @@
 #include <math.h> 
 #include <stdlib.h>
 #include "ruta.h"
-//Eliminar:
-#include <stdio.h>
-
 
 TEMPERATURA* init_temperatura(double valor, double factor,
 			      double epsilon_temp,
@@ -26,17 +23,17 @@ double porcentajes_aceptados(RUTA *ruta, double T)
 {
   RUTA *s = ruta;
   int cota = s->num_ciudades;
-  double c = 0;
+  double c = 0.0;
   int i;
   for(i = 0; i < cota; i++)
     {
       RUTA *s_prima = get_ruta_vecina(s);
       if(funcion_costo(s_prima) <= (funcion_costo(s)+T))
-	c++;      
-      s = s_prima;
-      //Liberar memoria de s.
+	c++;
+      //destroy_vecino(s);
+      s = s_prima;      
     }
-  return (c/s->num_ciudades);
+  return (c/cota);
 }
 
 /**

@@ -1,7 +1,6 @@
 #include "aceptacion.h"
 #include <math.h>
-//Eliminar:
-#include <stdio.h>
+
 /**
  * Por efectos de seguir el algoritmo propuesto por las notas
  * me apego a el nombrado de las variables como t para la estructura
@@ -15,14 +14,12 @@ RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *s, double L)
   int im = 0;  
   while(t->valor > t->epsilon_temp){
     double p_prima = 0;
-    //printf("Diferencia: %f > %f\n",t->valor,t->epsilon_temp);
-    //printf("Diferencia: %f > %f\n",fabs(p-p_prima),t->epsilon_equilibrio);
     while(fabs(p - p_prima) > t->epsilon_equilibrio){
       p_prima = p;
       calcula_lote(t,lote_temp,L);
       p = lote_temp->promedio_soluciones;
     }
     modificar_temperatura(t);
-  }
+    }
   return lote_temp->mejor_solucion;;
 }

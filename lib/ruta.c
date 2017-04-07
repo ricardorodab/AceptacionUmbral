@@ -216,7 +216,7 @@ void recalcula_distancia(RUTA *ruta, int quita, int pon)
 {  
 
   /*double distancia = ruta->distancia;
- CIUDAD *ciudad_i, *ciudad_j, *vecino;
+  CIUDAD *ciudad_i, *ciudad_j, *vecino;
   int key_1,key_2,key_vecino;
   int ciudades_desconectadas = ruta->ciudades_desconectadas;
   int i,j;
@@ -272,7 +272,6 @@ void recalcula_distancia(RUTA *ruta, int quita, int pon)
       ciudades_desconectadas--;
     }
   }
-  //printf("Antes: %d\n",ruta->ciudades_desconectadas);
   ruta->distancia = distancia;
   ruta->ciudades_desconectadas = ciudades_desconectadas;
 }
