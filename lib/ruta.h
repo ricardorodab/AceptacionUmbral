@@ -71,6 +71,7 @@ typedef struct ruta_estructura {
   double distancia_max; /**< Almacenamos esta variable para hacer calculos */
   int ciudades_desconectadas; /**< Es el numero de ciudades desconectadas. */
   double peso_desconexion; /**< Es el peso que se le da a descinexiones. */
+  double AVG; /**< Es el valor promedio de la ruta de la suma. */
 } RUTA;
 
 /**
@@ -120,7 +121,7 @@ void destroy_ruta(RUTA *ruta);
 /**
  * @TODO COMMENT:
  */
-void set_distancia_maxima_ruta(RUTA *ruta);
+void set_distancias(RUTA *ruta);
 
 /**
  * @brief Dada una ruta y un peso maximo, calcula el la distancia de una ruta.

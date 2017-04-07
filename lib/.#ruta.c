@@ -1,1 +1,0 @@
-ricardo_rodab@MacBook-Air-de-Ricardo-2.local.51532

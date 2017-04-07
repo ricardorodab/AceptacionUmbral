@@ -80,14 +80,14 @@ void insert_ciudades_aux(RUTA *ruta, GHashTable *cities,
       r = rand() % size;
       key = malloc(sizeof(int));
       *key = g_array_index(muestra,gint,r);
-       temp = g_hash_table_lookup(cities,key);
+      temp = g_hash_table_lookup(cities,key);      
       g_hash_table_insert(ruta->ciudades,key,temp);
       ruta->arreglo = g_array_append_val(ruta->arreglo,*key);
       g_array_remove_index(muestra,r);
       size--;      
-    }
-  set_distancia_maxima_ruta(ruta);
-  recalcula_distancia(ruta);
+    }  
+  set_distancias(ruta);
+  //recalcula_distancia(ruta);
 }
 
 /**
@@ -102,11 +102,14 @@ void insert_ciudades_aux(RUTA *ruta, GHashTable *cities,
 RUTA* init_ruta(GHashTable *cities, GArray *muestra,
 		int size, double peso_desconexion)
 {
+  
   RUTA *ruta = malloc(sizeof(RUTA));
   ruta->distancia = 0;
   ruta->peso_desconexion = peso_desconexion;
   ruta->distancia_max = 0;
+  ruta->AVG = 0;
   ruta->num_ciudades = size;
+  ruta->ciudades_desconectadas = 0;
   ruta->ciudades = 
     g_hash_table_new_full(g_int_hash,g_int_equal,free,free);
   ruta->arreglo = g_array_sized_new(FALSE,TRUE,sizeof(gint),size);
@@ -156,29 +159,45 @@ void destroy_ruta(RUTA *ruta)
 /**
  * @TODO COMMENT:
  */
-void set_distancia_maxima_ruta(RUTA *ruta)
+void set_distancias(RUTA *ruta)
 {
   CIUDAD *ciudad_i, *ciudad_j;
   int key_1,key_2;
-  double distancia_max = 0;
+  double distancia_max = 0;  
+  double distancia = 0;
+  int ciudades_desconectadas = ruta->num_ciudades-1;
+  double AVG = 0;
   int i,j;
-  int hay_desconectados = 0;
-  for(i = 0; i < ruta->num_ciudades; i++){
+  for(i = 0; i < ruta->num_ciudades-1; i++){
     for(j = i+1; j < ruta->num_ciudades; j++){
       key_1 = g_array_index(ruta->arreglo,gint,i);
-      ciudad_i = g_hash_table_lookup(ruta->ciudades,&key_1);
       key_2 = g_array_index(ruta->arreglo,gint,j);
+      //Buscamos las ciudades:
+      ciudad_i = g_hash_table_lookup(ruta->ciudades,&key_1);
       ciudad_j = g_hash_table_lookup(ruta->ciudades,&key_2);
+      //Revisamos que sean vecinas: 
       if(son_vecinos(ciudad_i,ciudad_j)){
 	if(get_distancia_ciudad(ciudad_i,ciudad_j) > distancia_max)
 	  distancia_max = get_distancia_ciudad(ciudad_i,ciudad_j);
-      }else{
-	hay_desconectados++;
       }
     }
   }
-  if(hay_desconectados)
-    ruta->distancia_max = distancia_max;
+  for(i = 0; i < ruta->num_ciudades-1; i++){
+    j = i+1;
+    key_1 = g_array_index(ruta->arreglo,gint,i);
+    key_2 = g_array_index(ruta->arreglo,gint,j);
+    //Buscamos las ciudades:
+    ciudad_i = g_hash_table_lookup(ruta->ciudades,&key_1);
+    ciudad_j = g_hash_table_lookup(ruta->ciudades,&key_2);
+    if(son_vecinos(ciudad_i,ciudad_j)){
+      distancia += get_distancia_ciudad(ciudad_i,ciudad_j);
+      ciudades_desconectadas--;
+    }    
+  }
+  ruta->distancia = distancia;
+  ruta->ciudades_desconectadas = ciudades_desconectadas;
+  ruta->AVG = distancia/(ruta->num_ciudades-ciudades_desconectadas);
+  ruta->distancia_max = distancia_max;
 }
 
 /**
@@ -269,7 +288,8 @@ RUTA* get_ruta_vecina(RUTA* ruta)
       }
     }  
   vecino->arreglo = muestra;
-  recalcula_distancia(vecino);
+  //recalcula_distancia(vecino);
+  set_distancias(vecino);
   return vecino;
 }
 
