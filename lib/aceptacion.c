@@ -12,9 +12,11 @@ RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *s, double L)
 {
   LOTE *lote_temp = init_lote(s);
   double p = INFINITY;
-
+  int im = 0;  
   while(t->valor > t->epsilon_temp){
     double p_prima = 0;
+    //printf("Diferencia: %f > %f\n",t->valor,t->epsilon_temp);
+    //printf("Diferencia: %f > %f\n",fabs(p-p_prima),t->epsilon_equilibrio);
     while(fabs(p - p_prima) > t->epsilon_equilibrio){
       p_prima = p;
       calcula_lote(t,lote_temp,L);

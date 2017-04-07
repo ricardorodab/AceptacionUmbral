@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS =  subdir-objects
-AM_CFLAGS = -lsqlite3 -I$(top_srcdir)/lib $(GLIB_CFLAGS) $(GLIB_LIBS)
+AM_CFLAGS = -g -O3 -lsqlite3 -I$(top_srcdir)/lib $(GLIB_CFLAGS) $(GLIB_LIBS)
 noinst_LIBRARIES = lib/libutils.a
 
 END_LIST =

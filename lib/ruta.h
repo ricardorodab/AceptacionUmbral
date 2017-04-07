@@ -129,9 +129,10 @@ void set_distancias(RUTA *ruta);
  * @param ruta -Es la ruta que queremos obtener la distancia.
  * @peso_desconexion -Este lo ocupamos para asignale peso a
  * ciudades desconectada.
+ * @TODO - actualizar parametros
  *
  */
-void recalcula_distancia(RUTA *ruta);
+void recalcula_distancia(RUTA *ruta, int quita, int pon);
 
 /**
  * @brief Obtenemos una solucion vecina a la ruta actual intercambiando dos

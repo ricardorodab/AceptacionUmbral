@@ -49,6 +49,7 @@
 #include <string.h>
 #include <glib.h>
 #include <ctype.h>
+#include <time.h> 
 #include "conexion.h"
 #include "ciudad.h"
 #include "temperatura.h"
@@ -307,6 +308,9 @@ int main(int argc, char** argv)
   double EPSILON_EQUILIBRIO;
   double EPSILON_TEMP;
   double L_ITERACIONES;
+
+  //Inicializamos la semilla aleatoria (@TODO - Cambiar semilla)
+  srand(time(NULL));
   
   //Leemos el archivo de configuracion:
   GKeyFile *keyfile;
@@ -326,18 +330,18 @@ int main(int argc, char** argv)
   // 1. Primero la base de datos:
   UBICACION_BASE = g_key_file_get_string(keyfile,"DATABASE","UBICACION",NULL);
   // 2. Variables de experimentacion:
-  L_ITERACIONES = g_key_file_get_double(keyfile,"HEURISTICA",
-					"L_ITERACIONES",NULL);
-  PESO_DESCONEXION = g_key_file_get_double(keyfile,"HEURISTICA",
-					   "PESO_DESCONEXION",NULL);
-  P_FACTOR_CAMBIO = g_key_file_get_double(keyfile,"HEURISTICA",
-					  "P_FACTOR_CAMBIO",NULL);
   TEMPERATURA_INICIAL = g_key_file_get_double(keyfile,"HEURISTICA",
 					      "TEMPERATURA_INICIAL",NULL);
-  EPSILON_EQUILIBRIO = g_key_file_get_double(keyfile,"HEURISTICA",
-					     "EPSILON_EQUILIBRIO",NULL);
-  EPSILON_TEMP = g_key_file_get_double(keyfile,"HEURISTICA",
-					"EPSILON_TEMP",NULL);
+  L_ITERACIONES       = g_key_file_get_double(keyfile,"HEURISTICA",
+					      "L_ITERACIONES",NULL);
+  EPSILON_TEMP        = g_key_file_get_double(keyfile,"HEURISTICA",
+					      "EPSILON_TEMP",NULL);
+  EPSILON_EQUILIBRIO  = g_key_file_get_double(keyfile,"HEURISTICA",
+					      "EPSILON_EQUILIBRIO",NULL);
+  P_FACTOR_CAMBIO     = g_key_file_get_double(keyfile,"HEURISTICA",
+					      "P_FACTOR_CAMBIO",NULL); 
+  PESO_DESCONEXION    = g_key_file_get_double(keyfile,"HEURISTICA",
+					      "PESO_DESCONEXION",NULL);
   // 3. Por ultimo el nombre donde esta la muestra:
   UBICACION_MUESTRA = g_key_file_get_string(keyfile,"MUESTRA",
 					    "UBICACION",NULL);
@@ -362,16 +366,21 @@ int main(int argc, char** argv)
 					      P_FACTOR_CAMBIO,
 					      EPSILON_TEMP,
 					      EPSILON_EQUILIBRIO);
+  imprime_ruta(ruta_inicial_aleatoria);
   printf("INICIAL:%f\n",temperatura->valor);
-  temperatura_inicial(ruta_inicial_aleatoria,temperatura,P_FACTOR_CAMBIO);
+  //temperatura_inicial(ruta_inicial_aleatoria,temperatura,P_FACTOR_CAMBIO);
+  temperatura->valor = 8;  
   printf("FINAL:%f\n",temperatura->valor);
-  temperatura->valor = 8;
   //INICIA LA HEURISTICA:
   RUTA *result = aceptacion_por_umbrales(temperatura,
 					 ruta_inicial_aleatoria,
 					 L_ITERACIONES);
   imprime_ruta(result);
   printf("FUNCION:%f\n",funcion_costo(result));
+  char *factible = result->ciudades_desconectadas == 0 ? "SI" : "NO";
+  printf("Solucion factible: %s\n",factible);
+  if(result->ciudades_desconectadas > 0)
+    printf("El numero de desconexidades es de :%d\n",result->ciudades_desconectadas);
   imprime_gps(result);
   return 0; 
 } //Fin de main.c

@@ -28,7 +28,6 @@
 
 #include "ruta.h"
 #include <stdlib.h>
-#include <time.h> 
 #include <stdio.h>
 
 /**
@@ -73,7 +72,6 @@ void insert_ciudades_aux(RUTA *ruta, GHashTable *cities,
   CIUDAD *temp;
   int *key;
   int r = 0;
-  srand(time(NULL));
   //Iteraremos la lista aleatoriamente para generar una ruta aleatoria:
   while(size > 0)
     {      
@@ -84,10 +82,9 @@ void insert_ciudades_aux(RUTA *ruta, GHashTable *cities,
       g_hash_table_insert(ruta->ciudades,key,temp);
       ruta->arreglo = g_array_append_val(ruta->arreglo,*key);
       g_array_remove_index(muestra,r);
-      size--;      
+      size--;
     }  
   set_distancias(ruta);
-  //recalcula_distancia(ruta);
 }
 
 /**
@@ -138,6 +135,7 @@ bool is_in_ruta(RUTA *ruta, CIUDAD* ciudad)
  */
 void destroy_vecino(RUTA *vecino){
   g_array_free(vecino->arreglo,TRUE);
+  vecino->ciudades = NULL;
   free(vecino);
 }
 
@@ -199,7 +197,7 @@ void set_distancias(RUTA *ruta)
   }
   ruta->distancia = distancia;
   ruta->ciudades_desconectadas = ciudades_desconectadas;
-  ruta->AVG = AVG/aristas; //distancia/((ruta->num_ciudades-1)-ciudades_desconectadas);
+  ruta->AVG = AVG/aristas;
   ruta->distancia_max = distancia_max;
 }
 
@@ -214,40 +212,81 @@ void set_distancias(RUTA *ruta)
  *
  * @TODO C - Rehacer la funcion..
  */
-void recalcula_distancia(RUTA *ruta)
-{
-  set_distancias(ruta);
-  /*  CIUDAD *temp, *vecino;
-  int i,j;  
-  double val_dist, no_conectados,dist;
-  dist = 0;
-  no_conectados = 0;
-  //Ahora calculamos la distancia.
-  for(i = 0; i < ruta->num_ciudades-1; i++)
-    {
-      j = i+1;
-      int index_uno = (g_array_index(ruta->arreglo,gint,i));
-      int index_dos = (g_array_index(ruta->arreglo,gint,j));      
-      temp = g_hash_table_lookup(ruta->ciudades,&index_uno);
-      vecino = g_hash_table_lookup(ruta->ciudades,&index_dos);      
-      val_dist = get_distancia_ciudad(temp,vecino);
-      //Si resulta un -1 o algo raro lo ignoramos y aumentamos desconectados.
-      if(0 > val_dist) {
-	no_conectados++;	
-      }else{
-        //Sumamos la distancia a la distancia total.
-	//Revisamos que si la nueva distancia es la mayor la sustituimos.
-	dist += val_dist;
-      }    
+void recalcula_distancia(RUTA *ruta, int quita, int pon)
+{  
+
+  /*double distancia = ruta->distancia;
+ CIUDAD *ciudad_i, *ciudad_j, *vecino;
+  int key_1,key_2,key_vecino;
+  int ciudades_desconectadas = ruta->ciudades_desconectadas;
+  int i,j;
+  int size = ruta->num_ciudades;
+  key_1 = g_array_index(ruta->arreglo,gint,i);
+  key_2 = g_array_index(ruta->arreglo,gint,j);
+  ciudad_i = g_hash_table_lookup(ruta->ciudades,&key_1);
+  ciudad_j = g_hash_table_lookup(ruta->ciudades,&key_2);
+  
+  if(quita > 0){
+    key_vecino = g_array_index(ruta->arreglo,gint,quita-1);
+    vecino = g_hash_table_lookup(ruta->ciudades,
+				 &key_vecino);
+    if(son_vecinos(ciudad_i,vecino)){
+      distancia -= get_distancia_ciudad(ciudad_i,vecino);
+      ciudades_desconectadas++;
     }
-  ruta->ciudades_desconectadas = no_conectados;
-  // MAX(P)X(C=2) si (u,v) no estan conectados.
-  //double no_conect;
-  //if(ruta->ciudades_desconectadas == 0)
-  //   printf("Si es factible %d\n",ruta->ciudades_desconectadas);
-  no_conect = (no_conectados*ruta->distancia_max*ruta->peso_desconexion);
-  ruta->distancia = dist+no_conect;*/
+    if(son_vecinos(ciudad_j,vecino)){
+      distancia += get_distancia_ciudad(ciudad_j,vecino);
+      ciudades_desconectadas--;
+    }
+  }
+  if(quita < size-1){
+    key_vecino = g_array_index(ruta->arreglo,gint,quita+1);
+    vecino = g_hash_table_lookup(ruta->ciudades,
+				 &key_vecino);
+    if(son_vecinos(ciudad_i,vecino)){
+      distancia -= get_distancia_ciudad(ciudad_i,vecino);
+      ciudades_desconectadas++;
+    }
+    if(son_vecinos(ciudad_j,vecino)){
+      distancia += get_distancia_ciudad(ciudad_j,vecino);
+      ciudades_desconectadas--;
+    }
+  }
+  ruta->ciudades_desconectadas = ciudades_desconectadas;
+  ruta->distancia = distancia;*/
+  //ANTES:
+  CIUDAD *ciudad_i, *ciudad_j;
+  int key_1,key_2;
+  int i,j;
+  double distancia = 0;
+  int ciudades_desconectadas = ruta->num_ciudades-1;
+  for(i = 0; i < ruta->num_ciudades-1; i++){
+    j = i+1;
+    key_1 = g_array_index(ruta->arreglo,gint,i);
+    key_2 = g_array_index(ruta->arreglo,gint,j);
+    //Buscamos las ciudades:
+    ciudad_i = g_hash_table_lookup(ruta->ciudades,&key_1);
+    ciudad_j = g_hash_table_lookup(ruta->ciudades,&key_2);
+    if(son_vecinos(ciudad_i,ciudad_j)){
+      distancia += get_distancia_ciudad(ciudad_i,ciudad_j);
+      ciudades_desconectadas--;
+    }
+  }
+  //printf("Antes: %d\n",ruta->ciudades_desconectadas);
+  ruta->distancia = distancia;
+  ruta->ciudades_desconectadas = ciudades_desconectadas;
 }
+
+/**
+ * @TODO Mejorar complejidad en lugar de recalcular toda la ruta
+ * mejor solo restar [(i,(i+1))+((i-1),i)+(j,(j+1))+((j-1),j)] 
+ * y sumarle [(j,(i+1))+((i-1),j)+(i,(j+1))+((j-1),i)]
+ */
+void calcula_swap(RUTA *ruta, int quita, int pon)
+{
+  
+}
+
 
 /**
  * La definicion de ruta vecina en esta funcion es la siguiente:
@@ -257,14 +296,12 @@ void recalcula_distancia(RUTA *ruta)
  * parametros que la recibimos de parametros por excepcion de la distancia
  * y el arreglo ya que este sera cambiado por el swap de i y j.
  *
- * @TODO -Modificar la semilla de @srand
  * @TODO Mejorar complejidad en lugar de recalcular toda la ruta
  * mejor solo restar [(i,(i+1))+((i-1),i)+(j,(j+1))+((j-1),j)] 
  * y sumarle [(j,(i+1))+((i-1),j)+(i,(j+1))+((j-1),i)]
  */
 RUTA* get_ruta_vecina(RUTA* ruta)
 {
-  srand(time(NULL));
   int r_i = 0;
   int r_j = 0;
   RUTA *vecino = malloc(sizeof(RUTA));
@@ -278,6 +315,7 @@ RUTA* get_ruta_vecina(RUTA* ruta)
   vecino->num_ciudades = size;
   vecino->ciudades = ruta->ciudades;
   vecino->distancia_max = ruta->distancia_max;
+  vecino->AVG = ruta->AVG;
   vecino->peso_desconexion = ruta->peso_desconexion;
   GArray *muestra = g_array_sized_new(FALSE,TRUE,sizeof(gint),size);
   int i;
@@ -293,7 +331,10 @@ RUTA* get_ruta_vecina(RUTA* ruta)
     }  
   vecino->arreglo = muestra;
   //recalcula_distancia(vecino);
-  set_distancias(vecino);
+  recalcula_distancia(vecino,r_i,r_j);
+  recalcula_distancia(vecino,r_j,r_i);  
+  //calcula_swap(vecino,r_i,r_j);
+  //set_distancias(vecino);
   return vecino;
 }
 
@@ -334,4 +375,5 @@ void imprime_gps(RUTA* ruta)
       printf("%f,",temp->latitude);
       printf("%f\n",temp->longitude);
     }
+  free(key);
 }
