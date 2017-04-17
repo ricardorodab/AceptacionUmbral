@@ -121,8 +121,9 @@ CIUDAD_VECINO* init_ciudad_vecino(CIUDAD *vec,double dist)
  * repetitivo.
  *
  */
+#include <stdio.h>
 bool son_vecinos(CIUDAD *ciudad, CIUDAD *vecino)
-{
+{  
   int *id = &vecino->id;
   return g_hash_table_contains(ciudad->vecinos,id);
 }
@@ -168,7 +169,7 @@ void add_vecino(CIUDAD *ciudad, CIUDAD *vecino,double distancia)
  * llama a la tupla de una de las ciudades (es indistinguible cual puesto
  * que ambas ciudades tienen la distancia) y devuelve el double de la 
  * tupla propuesto.
- * @warning Regresa -1 si no existe la conexion.
+ * @warning Regresa 0 si no existe la conexion.
  */
 double get_distancia_ciudad(CIUDAD *ciudad_origen, CIUDAD *ciudad_destino)
 {
@@ -177,7 +178,7 @@ double get_distancia_ciudad(CIUDAD *ciudad_origen, CIUDAD *ciudad_destino)
     CIUDAD_VECINO *tupla = g_hash_table_lookup(ciudad_origen->vecinos,id);
     return tupla->distancia;
   }
-  return -1;
+  return 0.0;
 }
 
 /**

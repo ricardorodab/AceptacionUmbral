@@ -26,20 +26,15 @@ void calcula_lote(TEMPERATURA *t, LOTE *lote, double L)
     COTA--;
     RUTA *s_prima = get_ruta_vecina(s);
     double s_prima_fun = funcion_costo(s_prima);
+    /*printf("\n");
+    imprime_ruta(s_prima);
+    printf("Funcion: %f\n",s_prima_fun);
+    printf("Desconexas: %d\n",s_prima->ciudades_desconectadas);
+    printf("\n");*/
     double s_fun = funcion_costo(s); 
     if (s_prima_fun < lote->mejor_solucion_fun){
       lote->mejor_solucion = s_prima;
       lote->mejor_solucion_fun = s_prima_fun;
-      //int iterador = 0;
-      //if(iterador % 50 == 0){
-      printf("FUNCION:%f\n",funcion_costo(lote->mejor_solucion));
-      char *factible = lote->mejor_solucion->ciudades_desconectadas == 0 ? "SI" : "NO";
-      printf("Solucion factible: %s\n",factible);
-      if(lote->mejor_solucion->ciudades_desconectadas > 0)
-	printf("El numero de desconexidades es de :%d\n",lote->mejor_solucion->ciudades_desconectadas);
-      //}
-      
-      //printf("COSTO: %f ", lote->mejor_solucion_fun);imprime_ruta(s_prima); 
     }
     if(s_prima_fun <= (s_fun+(t->valor))){
       if(s_fun != lote->mejor_solucion_fun)

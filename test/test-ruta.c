@@ -93,64 +93,48 @@ RUTA* genera_ruta_aleatoria(void)
   int nombre_size;
   int pais_size;
   int r;
+  int *id;
   //El size es el tamanio de mi mundo prueba.
   int size = rand() % 500;
-  size++;
+  size += 5;
   int i;
-  for(i = 0; i < size; i++)
+  muestra = g_array_sized_new(FALSE, FALSE,
+			      sizeof(gint),size);  
+  for(i = 0; i < size; i++) 
     {
       r = rand() % 50;
       if(r == 0)
 	r++;
-      nombre = malloc(sizeof(char)*r);
-      pais = malloc(sizeof(char)*r);
+      nombre = malloc(sizeof(char)*r+1);
+      pais = malloc(sizeof(char)*r+1);
       rand_str(nombre,r);
       rand_str(pais,r);      
       poblacion = ((double)(rand() % 10000))/100.0;
       latitude = ((double)(rand() % 10000))/100.0;
       longitude = ((double)(rand() % 10000))/100.0;
       ciudad = malloc(sizeof(CIUDAD));
-      init_ciudad(ciudad,i+1,nombre,pais,poblacion,
-		  latitude,longitude);
       int *key = malloc(sizeof(int));
-      *key = i+1;
+      *key = i;
+      init_ciudad(ciudad,*key,nombre,pais,poblacion,
+		  latitude,longitude);
       g_hash_table_insert(cities,key,ciudad);
+      
+      g_array_append_val(muestra,i);
     }  
-  muestra = g_array_sized_new(FALSE, FALSE,
-			      sizeof(gint),size);  
 
-  
-
-  for(i = 0; i < size-1; i++)
-    {
-      int j = i+2;
-      int k = i+1;
-      add_vecino(g_hash_table_lookup(cities,&k),
-		 g_hash_table_lookup(cities,&j),
-		 rand()%999999);
-    }
-  for(i = 0; i < size; i++)
-    {
-      int *j = malloc(sizeof(int));
-      *j = i+1;
-      g_array_append_val(muestra,*j);
-    }
-
-  /*
-  int j;
-  int key_1,key_2;
-  for(i = 0; i < size-1; i++)
-    {
+  int j,llave_1,llave_2;
+  ruta = init_ruta(cities,muestra,size,2);
+  for(i = 0; i < ruta->num_ciudades-1; i++)
+    {	  
       j = i+1;
-      key_1 = g_array_index(muestra,gint,i);
-      key_2 = g_array_index(muestra,gint,j);
-      ciudad_i = g_hash_table_lookup(cities,&key_1);
-      ciudad_j = g_hash_table_lookup(cities,&key_2);
+      llave_1 = g_array_index(ruta->arreglo,gint,i);
+      llave_2 = g_array_index(ruta->arreglo,gint,j);
+      ciudad_i = g_hash_table_lookup(ruta->ciudades,&llave_1);
+      ciudad_j = g_hash_table_lookup(ruta->ciudades,&llave_2);
       add_vecino(ciudad_i,ciudad_j,rand()%999999);
     }
-  */
-  ruta = init_ruta(cities,muestra,size,2);  
-  return ruta;
+  set_distancias(ruta);  
+  return ruta;    
 }
 
 
@@ -270,75 +254,45 @@ static void test_set_distancias(RutaAux *ayuda,
 		 descon->ciudades_desconectadas+1);
       }
       g_assert(descon->ciudades_desconectadas == 0);
-    }
+    } 
 }
 static void test_recalcula_distancia(RutaAux *ayuda,
 				     gconstpointer user_data)
 {
-  int i = 1;
+  int it = 100;
   double distancia, distancia_max;
-  double ciudades_desconectadas;
+  int ciudades_desconectadas;
   double AVG;
   CIUDAD *ciudad_i, *ciudad_j;
-  while(i--)
+  double distancia_vecinos;
+  int rand_i, rand_j;
+  int size;
+  while(it--)
     {
-      RUTA *descon = genera_ruta_aleatoria();      
+      RUTA *ruta = genera_ruta_aleatoria();
+      int i;
       int j;
       int llave_1,llave_2;
-      /*for(i = 0; i < descon->num_ciudades-1; i++)
-	{
-	  j = i+1;
-	  llave_1 = g_array_index(descon->arreglo,gint,i);
-	  llave_2 = g_array_index(descon->arreglo,gint,j);
-	  ciudad_i = g_hash_table_lookup(descon->ciudades,&llave_1);
-	  ciudad_j = g_hash_table_lookup(descon->ciudades,&llave_2);
-	  add_vecino(ciudad_i,ciudad_j,rand()%999999);
-	}*/
-      int *key_1 = malloc(sizeof(int));
-      int *key_2 = malloc(sizeof(int));
-      int *key_izq = malloc(sizeof(int));
-      int *key_der = malloc(sizeof(int));
-      for(j = 0; j < descon->num_ciudades-1; j++)
-	{	  
-	  distancia = descon->distancia;
-	  ciudades_desconectadas = descon->ciudades_desconectadas;
-	  
-	  int k = j+1;
-	  //int iz = j-1;
-	  //int de = k+1;
-	  *key_1 = g_array_index(descon->arreglo,gint,j);
-	  *key_2 = g_array_index(descon->arreglo,gint,k);
-	  //*key_izq = g_array_index(descon->arreglo,gint,iz);
-	  //*key_der = g_array_index(descon->arreglo,gint,de);
-	  
-	  CIUDAD *city_1 = g_hash_table_lookup(descon->ciudades,key_1);
-	  CIUDAD *city_2 = g_hash_table_lookup(descon->ciudades,key_2);
-	  
-	  //CIUDAD *city_izq = g_hash_table_lookup(descon->ciudades,key_izq);
-	  //CIUDAD *city_der = g_hash_table_lookup(descon->ciudades,key_der);
-
-	  //imprime_ruta(descon);
-	  //imprime_ciudad(city_1);
-	  //imprime_ciudad(city_2);
-	  
-	  g_assert_true(son_vecinos(city_1,city_2));	
-	  /*g_assert_true(son_vecinos(city_1,city_izq));
-	  g_assert_true(son_vecinos(city_2,city_der));
-
-	  double dist_izq = get_distancia_ciudad(city_1,city_izq);
-	  double dist_der = get_distancia_ciudad(city_2,city_der);
-
-	  recalcula_distancia(descon,j,k);
-	  recalcula_distancia(descon,k,j);
-	  
-	  
-	  double ran = rand() % 999999;
-
-	  g_assert(descon->ciudades_desconectadas > 0);
-	  add_vecino(city_1,city_2,ran);
-	  recalcula_distancia(descon,j,k);*/
-	  }
-      
+      ciudades_desconectadas = ruta->ciudades_desconectadas;
+      AVG = ruta->AVG;
+      distancia_max = ruta->distancia_max;
+      distancia = ruta->distancia;
+      size = ruta->num_ciudades;
+      g_assert(ruta->ciudades_desconectadas == 0);
+      g_assert(ruta->num_ciudades > 0);
+      g_assert(ruta->distancia_max > 0);
+      g_assert(AVG > 0);
+      rand_i = rand() % size;
+      rand_j = rand() % size;
+      while(rand_i == rand_j)
+	rand_j = rand() % size;
+      int temp = g_array_index(ruta->arreglo,gint,rand_i);
+      recalcula_distancia(ruta,rand_i,rand_j);
+      g_array_index(ruta->arreglo,gint,rand_i) = g_array_index(ruta->arreglo,gint,rand_j);
+      g_array_index(ruta->arreglo,gint,rand_j) = temp;
+      if(size > 2)
+	g_assert(ciudades_desconectadas < ruta->ciudades_desconectadas);
+      g_assert(distancia > ruta->distancia);     
     }
 }
 
@@ -347,14 +301,11 @@ int main(int argc, char** argv)
 {
   srand(time(NULL));
   g_test_init(&argc, &argv, NULL);
-  g_test_bug_base("http://misbugs.org/bug?id=");
-  
+  g_test_bug_base("http://misbugs.org/bug?id="); 
   g_test_add("/ruta/vecinos_ruta",RutaAux,"",
-  	     ruta_set_up,test_vecinos_ruta, ruta_tear_down);
-  
+    ruta_set_up,test_vecinos_ruta, ruta_tear_down);  
   g_test_add("/ruta/vecinos_set_distancias",RutaAux,"",
-	     ruta_set_up,test_set_distancias,ruta_tear_down);
-  
+    ruta_set_up,test_set_distancias,ruta_tear_down);
   g_test_add("/ruta/vecinos_recalcula_distancias",RutaAux,"",
 	     ruta_set_up,test_recalcula_distancia,ruta_tear_down);
   

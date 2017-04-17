@@ -101,7 +101,7 @@ int main(int argc, char** argv)
   g_test_bug_base("http://misbugs.org/bug?id=");
   
   g_test_add("/ciudad/add_vecino",CiudadVerificador,nombres,
-  	     ciudad_set_up,test_add_vecino, ciudad_tear_down);
-
+	     ciudad_set_up,test_add_vecino, ciudad_tear_down);
+  
   return g_test_run();
 }

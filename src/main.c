@@ -370,7 +370,7 @@ int main(int argc, char** argv)
   imprime_ruta(ruta_inicial_aleatoria);
   printf("INICIAL:%f\n",temperatura->valor);
   temperatura_inicial(ruta_inicial_aleatoria,temperatura,P_FACTOR_CAMBIO);
-  //temperatura->valor = 8;  
+  temperatura->valor = 8;  
   printf("FINAL:%f\n",temperatura->valor);
   //INICIA LA HEURISTICA:
   RUTA *result = aceptacion_por_umbrales(temperatura,
@@ -383,7 +383,7 @@ int main(int argc, char** argv)
   if(result->ciudades_desconectadas > 0)
     printf("El numero de desconexidades es de :%d\n",result->ciudades_desconectadas);
   imprime_gps(result);
-
+  
   //Contamos el tiempo:
   clock_t toc = clock();
 
