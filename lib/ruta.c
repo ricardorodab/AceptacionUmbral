@@ -201,37 +201,102 @@ void set_distancias(RUTA *ruta)
   ruta->distancia_max = distancia_max;
 }
 
-/**
- * AUX
- *
- */
-void quita_ciudad(RUTA *ruta, int id_city_array, CIUDAD *quitar)
+void quita_izquierda(RUTA *ruta,
+		     int id_city_array,
+		     CIUDAD *quitar)
 {
   CIUDAD *ciudad_temp;
   int key;
-  int j,k;
+  int i,j;
   double distancia = ruta->distancia;
   int ciudades_desconectadas = ruta->ciudades_desconectadas;
-  j = id_city_array+1;
-  k = id_city_array-1;
-  if(k > 0){
-    key = g_array_index(ruta->arreglo,gint,k);
+  j = id_city_array-1;
+  if(j >= 0){
+    key = g_array_index(ruta->arreglo,gint,j);
     ciudad_temp = g_hash_table_lookup(ruta->ciudades,&key);
     if(son_vecinos(quitar,ciudad_temp)){
       ciudades_desconectadas++;
       distancia -= get_distancia_ciudad(quitar,ciudad_temp);
     }
   }
+  ruta->distancia = distancia;
+  ruta->ciudades_desconectadas = ciudades_desconectadas;  
+}
+
+void quita_derecha(RUTA *ruta,
+		     int id_city_array,
+		     CIUDAD *quitar)
+{
+  CIUDAD *ciudad_temp;
+  int key;
+  int i,j;
+  double distancia = ruta->distancia;
+  int ciudades_desconectadas = ruta->ciudades_desconectadas;
+  j = id_city_array+1;
   if(j < ruta->num_ciudades){
     key = g_array_index(ruta->arreglo,gint,j);
     ciudad_temp = g_hash_table_lookup(ruta->ciudades,&key);
     if(son_vecinos(quitar,ciudad_temp)){
       ciudades_desconectadas++;
       distancia -= get_distancia_ciudad(quitar,ciudad_temp);
-    }    
-  }  
+    }
+  }
   ruta->distancia = distancia;
   ruta->ciudades_desconectadas = ciudades_desconectadas;  
+}
+
+void pon_derecha(RUTA *ruta,
+		 int id_city_array,
+		 CIUDAD *poner)
+{
+  CIUDAD *ciudad_temp;
+  int key;
+  int i,j;
+  double distancia = ruta->distancia;
+  int ciudades_desconectadas = ruta->ciudades_desconectadas;
+  j = id_city_array+1;
+  if(j < ruta->num_ciudades){
+    key = g_array_index(ruta->arreglo,gint,j);
+    ciudad_temp = g_hash_table_lookup(ruta->ciudades,&key);
+    if(son_vecinos(poner,ciudad_temp)){
+      ciudades_desconectadas--;
+      distancia += get_distancia_ciudad(poner,ciudad_temp);
+    }
+  }
+  ruta->distancia = distancia;
+  ruta->ciudades_desconectadas = ciudades_desconectadas;  
+}
+
+void pon_izquierda(RUTA *ruta,
+		   int id_city_array,
+		   CIUDAD *poner)
+{
+  CIUDAD *ciudad_temp;
+  int key;
+  int i,j;
+  double distancia = ruta->distancia;
+  int ciudades_desconectadas = ruta->ciudades_desconectadas;
+  j = id_city_array-1;
+  if(j >= 0){
+    key = g_array_index(ruta->arreglo,gint,j);
+    ciudad_temp = g_hash_table_lookup(ruta->ciudades,&key);
+    if(son_vecinos(poner,ciudad_temp)){
+      ciudades_desconectadas--;
+      distancia += get_distancia_ciudad(poner,ciudad_temp);
+    }
+  }
+  ruta->distancia = distancia;
+  ruta->ciudades_desconectadas = ciudades_desconectadas;  
+}
+
+/**
+ * AUX
+ *
+ */
+void quita_ciudad(RUTA *ruta, int id_city_array, CIUDAD *quitar)
+{
+  quita_izquierda(ruta,id_city_array,quitar);
+  quita_derecha(ruta,id_city_array,quitar);
 }
 
 /**
@@ -240,42 +305,10 @@ void quita_ciudad(RUTA *ruta, int id_city_array, CIUDAD *quitar)
  */
 void agrega_ciudad(RUTA *ruta, int id_city_array, CIUDAD *poner)
 {
-  CIUDAD *ciudad_temp;
-  int key;
-  int i,j,k;
-  double distancia = ruta->distancia;
-  int ciudades_desconectadas = ruta->ciudades_desconectadas;
-  j = id_city_array+1;
-  k = id_city_array-1;
-  if(k > 0){
-    key = g_array_index(ruta->arreglo,gint,k);
-    ciudad_temp = g_hash_table_lookup(ruta->ciudades,&key);
-    if(son_vecinos(poner,ciudad_temp)){
-      ciudades_desconectadas--;
-      distancia += get_distancia_ciudad(poner,ciudad_temp);
-    }
-  }
-  if(j < ruta->num_ciudades){
-    key = g_array_index(ruta->arreglo,gint,j);
-    ciudad_temp = g_hash_table_lookup(ruta->ciudades,&key);
-    if(son_vecinos(poner,ciudad_temp)){
-      ciudades_desconectadas--;
-      distancia += get_distancia_ciudad(poner,ciudad_temp);
-    }    
-  }  
-  ruta->distancia = distancia;
-  ruta->ciudades_desconectadas = ciudades_desconectadas;  
+  pon_izquierda(ruta,id_city_array,poner);
+  pon_derecha(ruta,id_city_array,poner);
 }
 
-
-
-void agrega_y_quita_repetido_ciudad(RUTA *ruta,
-				    int id_city_array,
-				    int id_city_array_vecino,
-				    CIUDAD *poner)
-{
-
-}
 
 /**
  * Esta funcion calcula el peso que tiene una ruta que
@@ -297,9 +330,16 @@ void recalcula_distancia(RUTA *ruta, int ii, int jj)
   //Buscamos las ciudades:
   ciudad_i = g_hash_table_lookup(ruta->ciudades,&key_1);
   ciudad_j = g_hash_table_lookup(ruta->ciudades,&key_2);
-  if(ii-1 == jj || ii+1 == jj){
-    quita_ciudad(ruta,jj,ciudad_i);
-    agrega_ciudad(ruta,jj,ciudad_j);
+  if(ii-1 == jj){
+    quita_izquierda(ruta,jj,ciudad_j);
+    quita_derecha(ruta,ii,ciudad_i);
+    pon_derecha(ruta,ii,ciudad_j);
+    pon_izquierda(ruta,jj,ciudad_i);
+  }else if(ii+1 == jj){
+    quita_izquierda(ruta,ii,ciudad_i);
+    quita_derecha(ruta,jj,ciudad_j);
+    pon_derecha(ruta,jj,ciudad_i);
+    pon_izquierda(ruta,ii,ciudad_j);
   }else{
     quita_ciudad(ruta,ii,ciudad_i);
     quita_ciudad(ruta,jj,ciudad_j);
@@ -338,26 +378,20 @@ RUTA* get_ruta_vecina(RUTA* ruta)
   vecino->distancia_max = ruta->distancia_max;
   vecino->AVG = ruta->AVG;
   vecino->peso_desconexion = ruta->peso_desconexion;
+  vecino->ciudades_desconectadas = ruta->ciudades_desconectadas;
+  vecino->distancia = ruta->distancia;
   GArray *muestra = g_array_sized_new(FALSE,TRUE,sizeof(gint),size);
   int i;
-  for(i = 0; i < size; i++)
-    {
-      //if(i == r_i){
-      //g_array_append_val(muestra,g_array_index(ruta->arreglo,gint,r_j));
-      //}else if(i == r_j){
-      //g_array_append_val(muestra,g_array_index(ruta->arreglo,gint,r_i));
-      //}else{
-      g_array_append_val(muestra,g_array_index(ruta->arreglo,gint,i));
-      //}
-    }  
+  for(i = 0; i < size; i++){
+    g_array_append_val(muestra,g_array_index(ruta->arreglo,gint,i));
+  }  
   vecino->arreglo = muestra;
+  recalcula_distancia(vecino,r_i,r_j);
   
   int temp = g_array_index(vecino->arreglo,gint,r_i);
   g_array_index(vecino->arreglo,gint,r_i) =
     g_array_index(vecino->arreglo,gint,r_j);
   g_array_index(vecino->arreglo,gint,r_j) = temp;
-
-  recalcula_distancia(vecino,r_i,r_j);
   
   return vecino;
 }

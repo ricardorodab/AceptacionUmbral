@@ -370,7 +370,7 @@ int main(int argc, char** argv)
   imprime_ruta(ruta_inicial_aleatoria);
   printf("INICIAL:%f\n",temperatura->valor);
   temperatura_inicial(ruta_inicial_aleatoria,temperatura,P_FACTOR_CAMBIO);
-  temperatura->valor = 8;  
+  //temperatura->valor = TEMPERATURA_INICIAL;  
   printf("FINAL:%f\n",temperatura->valor);
   //INICIA LA HEURISTICA:
   RUTA *result = aceptacion_por_umbrales(temperatura,

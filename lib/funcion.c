@@ -7,7 +7,7 @@ double mi_avg(RUTA *ruta)
 
 double mi_max(RUTA *ruta)
 {
-  return (ruta->distancia_max);
+  return (ruta->distancia_max*ruta->peso_desconexion);
 }
 
 

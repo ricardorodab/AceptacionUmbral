@@ -19,6 +19,7 @@ RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *s, double L)
       printf("\n");
       imprime_ruta(lote_temp->ruta);
       printf("Desconexas: %d\n",lote_temp->ruta->ciudades_desconectadas);
+      printf("Distancia: %f\n",lote_temp->ruta->distancia);
       printf("\n");
       p_prima = p;
       calcula_lote(t,lote_temp,L);
@@ -26,5 +27,5 @@ RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *s, double L)
     }
     modificar_temperatura(t);
     }
-  return lote_temp->mejor_solucion;;
+  return lote_temp->mejor_solucion;
 }
