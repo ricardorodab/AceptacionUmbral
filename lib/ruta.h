@@ -119,7 +119,10 @@ void destroy_vecino(RUTA *vecino);
 void destroy_ruta(RUTA *ruta);
 
 /**
- * @TODO COMMENT:
+ * @brief Inicializa todas las distancias de una ruta.
+ *
+ * @param ruta -Es la ruta que se desea inicializar con sus pesos.
+ *
  */
 void set_distancias(RUTA *ruta);
 
@@ -127,12 +130,11 @@ void set_distancias(RUTA *ruta);
  * @brief Dada una ruta y un peso maximo, calcula el la distancia de una ruta.
  *
  * @param ruta -Es la ruta que queremos obtener la distancia.
- * @peso_desconexion -Este lo ocupamos para asignale peso a
- * ciudades desconectada.
- * @TODO - actualizar parametros
+ * @param posicion_i -Es una de las posiciones de las ciudades a hacer swap.
+ * @param posicion_j -Es una de las posiciones de las ciudades a hacer swap.
  *
  */
-void recalcula_distancia(RUTA *ruta, int quita, int pon);
+void recalcula_distancia(RUTA *ruta, int posicion_i, int posicion_j);
 
 /**
  * @brief Obtenemos una solucion vecina a la ruta actual intercambiando dos
@@ -144,7 +146,7 @@ void recalcula_distancia(RUTA *ruta, int quita, int pon);
  *
  */
 RUTA* get_ruta_vecina(RUTA* ruta);
-
+RUTA* get_ruta_vecina_index(RUTA* ruta,int ii, int jj);
 /**
  * @brief Transforma una estructura ruta en caracteres e imprime en consola
  *
@@ -154,7 +156,10 @@ RUTA* get_ruta_vecina(RUTA* ruta);
 void imprime_ruta(RUTA* ruta);
 
 /**
- * @TODO documentar
+ * @brief Transforma los GPS de una ruta e imprime en consola
+ *
+ * @param ruta -Es la ruta que queremos observar sus datos en pantalla.
+ *
  */
 void imprime_gps(RUTA* ruta);
 #endif //Fin de ruta.h

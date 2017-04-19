@@ -11,14 +11,10 @@ lib_libutils_a_SOURCES =    \
 	lib/ciudad.h        \
 	lib/lote.c          \
 	lib/lote.h          \
-	lib/mapa.c          \
-	lib/mapa.h          \
 	lib/ruta.c          \
 	lib/ruta.h          \
 	lib/funcion.c       \
 	lib/funcion.h       \
-	lib/solucion.c      \
-	lib/solucion.h      \
 	lib/temperatura.c   \
 	lib/temperatura.h   \
 	$(END_LIST)

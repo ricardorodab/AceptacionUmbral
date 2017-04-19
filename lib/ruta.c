@@ -64,7 +64,6 @@
  * @param size -Es el tamanio de las muestras con las que trabajaremos.
  * @see init_ruta
  * @TODO -Falta implementar cuando no estan unidos dos caminos.
- * @TODO -Modificar random para que sea determinista dado una semilla.
  */
 void insert_ciudades_aux(RUTA *ruta, GHashTable *cities,
 			 GArray *muestra, int size){
@@ -155,7 +154,11 @@ void destroy_ruta(RUTA *ruta)
 }
 
 /**
- * @TODO COMMENT:
+ * Al tener una complejidad de O(n^2) es solo llamada una vez,
+ * al inicio de la instancia de una ruta. Calcula recorriendo
+ * todos los vecinos de una ruta una sola vez para obtener
+ * constantes que no volveremos a tener que calcular.
+ *
  */
 void set_distancias(RUTA *ruta)
 {
@@ -201,6 +204,19 @@ void set_distancias(RUTA *ruta)
   ruta->distancia_max = distancia_max;
 }
 
+/**
+ * @brief Elimina los pesos de una ciudad en una ruta dada.
+ *
+ * Suponiendo que la ciudad se encuentra en una posicion i,
+ * la funcion elimina los pesos de la conectividad 
+ * i-1. Esta funcion la usamos indirectamente como auxiliar
+ * en el calculo de intercambio de ciudades en una ruta.
+ *
+ * @param ruta -Es la ruta en la que se encuentra la ciudad.
+ * @param id_city_array -Es la posicion de la ciudad en la ruta.
+ * @param quitar -Es la ciudad que queremos quitar de la ruta.
+ *
+ */
 void quita_izquierda(RUTA *ruta,
 		     int id_city_array,
 		     CIUDAD *quitar)
@@ -223,6 +239,19 @@ void quita_izquierda(RUTA *ruta,
   ruta->ciudades_desconectadas = ciudades_desconectadas;  
 }
 
+/**
+ * @brief Elimina los pesos de una ciudad en una ruta dada.
+ *
+ * Suponiendo que la ciudad se encuentra en una posicion i,
+ * la funcion elimina los pesos de la conectividad i+1. 
+ * Esta funcion la usamos indirectamente como auxiliar
+ * en el calculo de intercambio de ciudades en una ruta.
+ *
+ * @param ruta -Es la ruta en la que se encuentra la ciudad.
+ * @param id_city_array -Es la posicion de la ciudad en la ruta.
+ * @param quitar -Es la ciudad que queremos quitar de la ruta.
+ *
+ */
 void quita_derecha(RUTA *ruta,
 		     int id_city_array,
 		     CIUDAD *quitar)
@@ -245,6 +274,19 @@ void quita_derecha(RUTA *ruta,
   ruta->ciudades_desconectadas = ciudades_desconectadas;  
 }
 
+/**
+ * @brief Agrega los pesos de una ciudad en una ruta dada.
+ *
+ * Suponiendo que la ciudad se encuentra en una posicion i,
+ * la funcion agrega los pesos de la conectividad i+1. 
+ * Esta funcion la usamos indirectamente como auxiliar
+ * en el calculo de intercambio de ciudades en una ruta.
+ *
+ * @param ruta -Es la ruta en la que se encuentra la ciudad.
+ * @param id_city_array -Es la posicion de la ciudad en la ruta.
+ * @param poner -Es la ciudad que queremos agregar a la ruta.
+ *
+ */
 void pon_derecha(RUTA *ruta,
 		 int id_city_array,
 		 CIUDAD *poner)
@@ -267,6 +309,19 @@ void pon_derecha(RUTA *ruta,
   ruta->ciudades_desconectadas = ciudades_desconectadas;  
 }
 
+/**
+ * @brief Agrega los pesos de una ciudad en una ruta dada.
+ *
+ * Suponiendo que la ciudad se encuentra en una posicion i,
+ * la funcion agrega los pesos de la conectividad i-1. 
+ * Esta funcion la usamos indirectamente como auxiliar
+ * en el calculo de intercambio de ciudades en una ruta.
+ *
+ * @param ruta -Es la ruta en la que se encuentra la ciudad.
+ * @param id_city_array -Es la posicion de la ciudad en la ruta.
+ * @param poner -Es la ciudad que queremos agregar a la ruta.
+ *
+ */
 void pon_izquierda(RUTA *ruta,
 		   int id_city_array,
 		   CIUDAD *poner)
@@ -290,7 +345,16 @@ void pon_izquierda(RUTA *ruta,
 }
 
 /**
- * AUX
+ * @brief Elimina los pesos de una ciudad en una ruta dada.
+ *
+ * Suponiendo que la ciudad se encuentra en una posicion i,
+ * la funcion elimina los pesos de la conectividad i+1 e 
+ * i-1. Esta funcion la usamos indirectamente como auxiliar
+ * en el calculo de intercambio de ciudades en una ruta.
+ *
+ * @param ruta -Es la ruta en la que se encuentra la ciudad.
+ * @param id_city_array -Es la posicion de la ciudad en la ruta.
+ * @param quitar -Es la ciudad que queremos quitar de la ruta.
  *
  */
 void quita_ciudad(RUTA *ruta, int id_city_array, CIUDAD *quitar)
@@ -300,7 +364,16 @@ void quita_ciudad(RUTA *ruta, int id_city_array, CIUDAD *quitar)
 }
 
 /**
- * AUX
+ * @brief Agrega los pesos de una ciudad en una ruta dada.
+ *
+ * Suponiendo que la ciudad se encuentra en una posicion i,
+ * la funcion agrega los pesos de la conectividad i+1 e 
+ * i-1. Esta funcion la usamos indirectamente como auxiliar
+ * en el calculo de intercambio de ciudades en una ruta.
+ *
+ * @param ruta -Es la ruta en la que se encuentra la ciudad.
+ * @param id_city_array -Es la posicion de la ciudad en la ruta.
+ * @param poner -Es la ciudad que queremos agregar a la ruta.
  *
  */
 void agrega_ciudad(RUTA *ruta, int id_city_array, CIUDAD *poner)
@@ -319,32 +392,31 @@ void agrega_ciudad(RUTA *ruta, int id_city_array, CIUDAD *poner)
  * Si dos ciudades no estan conectadas su valor de peso sera
  * la constante @peso_desconexion por el valor mayor de distancia.
  *
- * @TODO C - Rehacer la funcion.. y mis esperanzas
  */
-void recalcula_distancia(RUTA *ruta, int ii, int jj)
+void recalcula_distancia(RUTA *ruta, int posicion_i, int posicion_j)
 {
   CIUDAD *ciudad_i, *ciudad_j;
   int key_1,key_2;
-  key_1 = g_array_index(ruta->arreglo,gint,ii);
-  key_2 = g_array_index(ruta->arreglo,gint,jj);
+  key_1 = g_array_index(ruta->arreglo,gint,posicion_i);
+  key_2 = g_array_index(ruta->arreglo,gint,posicion_j);
   //Buscamos las ciudades:
   ciudad_i = g_hash_table_lookup(ruta->ciudades,&key_1);
   ciudad_j = g_hash_table_lookup(ruta->ciudades,&key_2);
-  if(ii-1 == jj){
-    quita_izquierda(ruta,jj,ciudad_j);
-    quita_derecha(ruta,ii,ciudad_i);
-    pon_derecha(ruta,ii,ciudad_j);
-    pon_izquierda(ruta,jj,ciudad_i);
-  }else if(ii+1 == jj){
-    quita_izquierda(ruta,ii,ciudad_i);
-    quita_derecha(ruta,jj,ciudad_j);
-    pon_derecha(ruta,jj,ciudad_i);
-    pon_izquierda(ruta,ii,ciudad_j);
+  if(posicion_i-1 == posicion_j){
+    quita_izquierda(ruta,posicion_j,ciudad_j);
+    quita_derecha(ruta,posicion_i,ciudad_i);
+    pon_derecha(ruta,posicion_i,ciudad_j);
+    pon_izquierda(ruta,posicion_j,ciudad_i);
+  }else if(posicion_i+1 == posicion_j){
+    quita_izquierda(ruta,posicion_i,ciudad_i);
+    quita_derecha(ruta,posicion_j,ciudad_j);
+    pon_derecha(ruta,posicion_j,ciudad_i);
+    pon_izquierda(ruta,posicion_i,ciudad_j);
   }else{
-    quita_ciudad(ruta,ii,ciudad_i);
-    quita_ciudad(ruta,jj,ciudad_j);
-    agrega_ciudad(ruta,ii,ciudad_j);
-    agrega_ciudad(ruta,jj,ciudad_i);
+    quita_ciudad(ruta,posicion_i,ciudad_i);
+    quita_ciudad(ruta,posicion_j,ciudad_j);
+    agrega_ciudad(ruta,posicion_i,ciudad_j);
+    agrega_ciudad(ruta,posicion_j,ciudad_i);
     }
 }
 
@@ -357,9 +429,6 @@ void recalcula_distancia(RUTA *ruta, int ii, int jj)
  * parametros que la recibimos de parametros por excepcion de la distancia
  * y el arreglo ya que este sera cambiado por el swap de i y j.
  *
- * @TODO Mejorar complejidad en lugar de recalcular toda la ruta
- * mejor solo restar [(i,(i+1))+((i-1),i)+(j,(j+1))+((j-1),j)] 
- * y sumarle [(j,(i+1))+((i-1),j)+(i,(j+1))+((j-1),i)]
  */
 RUTA* get_ruta_vecina(RUTA* ruta)
 {
@@ -397,6 +466,49 @@ RUTA* get_ruta_vecina(RUTA* ruta)
 }
 
 /**
+ * La definicion de ruta vecina en esta funcion es la siguiente:
+ * Dos rutas son vecinas si una ciudad i es intecambiada por j
+ * con i y j diferentes. Obtenemos dos numeros aleatorios
+ * i y j, creamos una @RUTA completamente nueva con los mismos
+ * parametros que la recibimos de parametros por excepcion de la distancia
+ * y el arreglo ya que este sera cambiado por el swap de i y j.
+ *
+ */
+RUTA* get_ruta_vecina_index(RUTA* ruta,int ii, int jj)
+{
+  int r_i = 0;
+  int r_j = 0;
+  RUTA *vecino = malloc(sizeof(RUTA));
+  int size = ruta->num_ciudades;  
+  if(size < 2)
+    return ruta;
+  r_i = ii;
+  r_j = jj;
+  vecino->num_ciudades = size;
+  vecino->ciudades = ruta->ciudades;
+  vecino->distancia_max = ruta->distancia_max;
+  vecino->AVG = ruta->AVG;
+  vecino->peso_desconexion = ruta->peso_desconexion;
+  vecino->ciudades_desconectadas = ruta->ciudades_desconectadas;
+  vecino->distancia = ruta->distancia;
+  GArray *muestra = g_array_sized_new(FALSE,TRUE,sizeof(gint),size);
+  int i;
+  for(i = 0; i < size; i++){
+    g_array_append_val(muestra,g_array_index(ruta->arreglo,gint,i));
+  }  
+  vecino->arreglo = muestra;
+  recalcula_distancia(vecino,r_i,r_j);
+  
+  int temp = g_array_index(vecino->arreglo,gint,r_i);
+  g_array_index(vecino->arreglo,gint,r_i) =
+    g_array_index(vecino->arreglo,gint,r_j);
+  g_array_index(vecino->arreglo,gint,r_j) = temp;
+  
+  return vecino;
+}
+
+
+/**
  * Con propositos de resolver errores y molestos segmentation faults 
  * decidi crear esta funcion para ir rastreando errores de impresion.
  */
@@ -419,6 +531,12 @@ void imprime_ruta(RUTA* ruta)
   free(key);
 }
 
+/**
+ * Para poder graficar la ruta con una herramienta externa, 
+ * esta funcion nos regresa en orden de la ruta las posiciones
+ * geoglobales de los puntos dados por la ruta
+ *.
+ */
 void imprime_gps(RUTA* ruta)
 {
   int i;
@@ -433,4 +551,4 @@ void imprime_gps(RUTA* ruta)
       printf("%f\n",temp->longitude);
     }
   free(key);
-}
+} //Fin de ruta.c

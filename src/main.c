@@ -95,6 +95,54 @@ void main_imprime_error(char *msg,int linea)
   exit(1);
 }
 
+
+/**
+ * @brief Buscador de un numero del archivo donde viene las semillas.
+ *
+ * Como nuestro programa funciona con alta probabilidad y queremos que
+ * los resultados sean repetibles, usamos un semillero para reproducir
+ * el procedimiento de experimentacion.
+ * @param ubicacion_semilla -Es el nombre del archivo donde viene la semilla.
+ * @param num_semilla -Es la posicion de nuestra semilla en el archivo.
+ * @return La semilla final que se usara.
+ *
+ */
+int get_semilla(char *ubicacion_semilla,int num_semilla)
+{
+  int temp_seed = 1;
+  FILE *file;
+  int int_file;
+  char char_file[1];
+  GList *l;
+  char numero[128];
+  if(num_semilla < 0)
+    return temp_seed;
+  file = fopen(ubicacion_semilla,"r+");
+    //Revisamos si el archivo abrio bien.
+  if(file == NULL){
+    main_imprime_error("El archivo no existe o existe un problema al abrirlo.\n",__LINE__);
+  }
+  int_file = 0;
+  while(num_semilla && ((int_file = fscanf(file,"%c",char_file)) != -1))
+    {
+      if(char_file[0] == ',')
+	num_semilla--;
+    }  
+  if(int_file == -1)
+    return temp_seed;
+  int i = 0;
+  while((int_file=fscanf(file,"%c",char_file) != -1) && char_file[0] != ',')
+    {
+      if(!isdigit(char_file[0]))
+	break;
+      numero[i++] = char_file[0];
+    }
+  numero[i] = '\0';
+  temp_seed = atoi(numero);
+  fclose(file);
+  return temp_seed;
+}
+
 /**
  * @brief Manejador y parseador del archivo donde viene la muestra.
  *
@@ -180,6 +228,7 @@ GArray* lee_muestra(char *ubicacion_muestra,int *muestra_size)
   if(cant_num != *muestra_size)
     main_imprime_error("No coincide el numero de muestras con estas!",
 		       __LINE__);
+  fclose(file);
   return muestra;
 }
 
@@ -302,15 +351,15 @@ int main(int argc, char** argv)
   //A leer de externo ./etc/config.cfg:
   char *UBICACION_MUESTRA;
   char *UBICACION_BASE;
+  char *UBICACION_SEMILLA;
   double P_FACTOR_CAMBIO;
   double TEMPERATURA_INICIAL;
   double PESO_DESCONEXION;
   double EPSILON_EQUILIBRIO;
   double EPSILON_TEMP;
   double L_ITERACIONES;
-
-  //Inicializamos la semilla aleatoria (@TODO - Cambiar semilla)
-  srand(time(NULL));
+  int SEMILLA;
+  
   //Inicializamos una variable para medir el tiempo de ejecucion:
   clock_t tic = clock();
   //Leemos el archivo de configuracion:
@@ -343,10 +392,18 @@ int main(int argc, char** argv)
 					      "P_FACTOR_CAMBIO",NULL); 
   PESO_DESCONEXION    = g_key_file_get_double(keyfile,"HEURISTICA",
 					      "PESO_DESCONEXION",NULL);
-  // 3. Por ultimo el nombre donde esta la muestra:
+  // 3. Las semillas, numero elegida y la ubicacion del semillero:
+  SEMILLA             = g_key_file_get_integer(keyfile,"SEMILLA",
+					       "SEMILLA",NULL);
+  UBICACION_SEMILLA = g_key_file_get_string(keyfile,"SEMILLA",
+					    "UBICACION",NULL);
+  // 4. Por ultimo el nombre donde esta la muestra:
   UBICACION_MUESTRA = g_key_file_get_string(keyfile,"MUESTRA",
 					    "UBICACION",NULL);
-  
+  //Lo primero que hacemos es inicializamos el generador de num aleatorios:
+  int seed = get_semilla(UBICACION_SEMILLA,SEMILLA);
+  //Inicializamos la semilla "aleatoria".
+  srand(seed);
   //En la variable cities se encuentran toda la informacion de las ciudades.
   cities = g_hash_table_new_full(g_int_hash,
 				 g_int_equal,
@@ -372,7 +429,7 @@ int main(int argc, char** argv)
   temperatura_inicial(ruta_inicial_aleatoria,temperatura,P_FACTOR_CAMBIO);
   //temperatura->valor = TEMPERATURA_INICIAL;  
   printf("FINAL:%f\n",temperatura->valor);
-  //INICIA LA HEURISTICA:
+  //INICIA LA HEURISTICA, LA LLAMADA PRINCIPAL DEL PROGRAMA:
   RUTA *result = aceptacion_por_umbrales(temperatura,
 					 ruta_inicial_aleatoria,
 					 L_ITERACIONES);
@@ -386,8 +443,8 @@ int main(int argc, char** argv)
   
   //Contamos el tiempo:
   clock_t toc = clock();
-
-  printf("Transcurrieron: %f seconds\n", (double)(toc - tic) / CLOCKS_PER_SEC);
+  double segundos = (double)(toc - tic) / CLOCKS_PER_SEC;
+  printf("Transcurrieron: %f segundos o %f minutos.\n",segundos,segundos/60);
   return 0; 
 } //Fin de main.c
 

@@ -1,5 +1,33 @@
 #include "aceptacion.h"
 #include <math.h>
+#include <stdio.h>
+
+
+RUTA* barrido_vecinos(RUTA *ruta)
+{
+  int i,j,k;
+  RUTA *ruta_1, *ruta_2, *ruta_3;
+  for(i = 0; i < ruta->num_ciudades-2; i++){
+    j = i+1;
+    k = i+2;
+    ruta_1 = get_ruta_vecina_index(ruta,i,j);
+    ruta_2 = get_ruta_vecina_index(ruta,i,k);
+    ruta_3 = get_ruta_vecina_index(ruta,j,k);
+    if(funcion_costo(ruta) > funcion_costo(ruta_1)){
+      destroy_vecino(ruta);
+      ruta = ruta_1;
+    }
+    if(funcion_costo(ruta) > funcion_costo(ruta_2)){
+      destroy_vecino(ruta);
+      ruta = ruta_2;
+    }
+    if(funcion_costo(ruta) > funcion_costo(ruta_3)){
+      destroy_vecino(ruta);
+      ruta = ruta_3;
+    }
+  }
+  return ruta;
+}
 
 /**
  * Por efectos de seguir el algoritmo propuesto por las notas
@@ -7,10 +35,10 @@
  * temperatura y s para la solucion (o ruta) s.
  *
  */
-#import <stdio.h>
 RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *s, double L)
 {
   LOTE *lote_temp = init_lote(s);
+  RUTA *temp = s;
   double p = INFINITY;
   int im = 0;  
   while(t->valor > t->epsilon_temp){
@@ -27,5 +55,5 @@ RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *s, double L)
     }
     modificar_temperatura(t);
     }
-  return lote_temp->mejor_solucion;
+  return barrido_vecinos(lote_temp->mejor_solucion);
 }
