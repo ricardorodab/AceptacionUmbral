@@ -44,11 +44,11 @@ RUTA* aceptacion_por_umbrales(TEMPERATURA *t, RUTA *s, double L)
   while(t->valor > t->epsilon_temp){
     double p_prima = 0;
     while(fabs(p - p_prima) > t->epsilon_equilibrio){
-      printf("\n");
-      imprime_ruta(lote_temp->ruta);
-      printf("Desconexas: %d\n",lote_temp->ruta->ciudades_desconectadas);
-      printf("Distancia: %f\n",lote_temp->ruta->distancia);
-      printf("\n");
+      //printf("\n");
+      //imprime_ruta(lote_temp->ruta);
+      //printf("Desconexas: %d\n",lote_temp->ruta->ciudades_desconectadas);
+      //printf("Distancia: %f\n",lote_temp->ruta->distancia);
+      //printf("\n");
       p_prima = p;
       calcula_lote(t,lote_temp,L);
       p = lote_temp->promedio_soluciones;

@@ -88,15 +88,17 @@ void calcula_lote(TEMPERATURA *t, LOTE *lote, double L)
     if (s_prima_fun < lote->mejor_solucion_fun){
       lote->mejor_solucion = s_prima;
       lote->mejor_solucion_fun = s_prima_fun;
-      printf("\n");
-      imprime_ruta(lote->mejor_solucion);
-      printf("Desconexas: %d\n",lote->mejor_solucion->ciudades_desconectadas);
-      printf("Funcion: %f\n",s_prima_fun);
-      printf("\n");
+      //printf("\n");
+      //imprime_ruta(lote->mejor_solucion);
+      //printf("Desconexas: %d\n",lote->mejor_solucion->ciudades_desconectadas);
+      //printf("Funcion: %f\n",s_prima_fun);
+      //printf("\n");
     }
     if(s_prima_fun <= (s_fun+(t->valor))){
       if(s_fun != lote->mejor_solucion_fun)
 	destroy_vecino(s);
+      //printf("E:%f",s_fun);
+      //printf("\n");
       s = s_prima;
       c++;
       r += s_prima_fun;
